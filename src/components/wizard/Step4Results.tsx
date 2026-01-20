@@ -1,8 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useMemo } from 'react';
 import { calculateResults } from '@/utils/calculators';
 import { Calculator as CalculatorIcon } from 'lucide-react';
 import { DailyLifeBreakdown } from '@/components/DailyLifeBreakdown';
+import { SavingsBreakdown } from '@/components/SavingsBreakdown';
+import { InvestmentBreakdown } from '@/components/InvestmentBreakdown';
 
 interface Step4ResultsProps {
   data: {
@@ -22,7 +23,7 @@ export function Step4Results({ data }: Step4ResultsProps) {
 
   if (!results) return null;
 
-  const { allocation, savingsBreakdown, investmentBreakdown } = results;
+  const { allocation, investmentBreakdown } = results;
   const income = data.income || 1;
 
   // Calculate percentages from absolute allocation values
@@ -42,33 +43,14 @@ export function Step4Results({ data }: Step4ResultsProps) {
 
       <DailyLifeBreakdown amount={allocation.needs} percentage={needsPercent} />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-center">Savings ({savingsPercent}%)</CardTitle>
-        </CardHeader>
-        <CardContent className="text-center">
-          <p className="text-2xl font-bold">Rp {allocation.savings.toLocaleString('id-ID')}</p>
-          <p className="text-sm text-muted-foreground mt-2">
-            Emergency Fund Target: Rp {savingsBreakdown.emergencyFundTarget.toLocaleString('id-ID')}
-          </p>
-        </CardContent>
-      </Card>
+      <SavingsBreakdown amount={allocation.savings} percentage={savingsPercent} />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-center">Investment ({wantsPercent}%)</CardTitle>
-        </CardHeader>
-        <CardContent className="text-center">
-          <p className="text-2xl font-bold">Rp {allocation.wants.toLocaleString('id-ID')}</p>
-          <div className="mt-4 space-y-2">
-            {investmentBreakdown.recommendations.map((rec) => (
-              <p key={rec.name} className="text-sm">
-                {Math.round(rec.percentage * 100)}% {rec.name}
-              </p>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <InvestmentBreakdown
+        amount={allocation.wants}
+        percentage={wantsPercent}
+        riskProfile={data.riskProfile}
+        recommendations={investmentBreakdown.recommendations}
+      />
     </div>
   );
 }

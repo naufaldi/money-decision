@@ -25,7 +25,7 @@ import {
   Users,
   ChevronDown,
   ChevronUp,
-  Wallet,
+  Building,
 } from 'lucide-react';
 
 interface DailyLifeBreakdownProps {
@@ -66,7 +66,7 @@ export function DailyLifeBreakdown({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary/10 rounded-lg">
-              <Wallet className="w-5 h-5 text-primary" />
+              <Building className="w-5 h-5 text-primary" />
             </div>
             <div>
               <CardTitle className="text-lg flex items-center gap-2">
@@ -122,7 +122,7 @@ function SubcategoryRow({
   totalAmount,
 }: SubcategoryRowProps) {
   const actualPercentage = (amount / totalAmount) * 100;
-  const Icon = iconMap[category.icon || 'home'] || Wallet;
+  const Icon = iconMap[category.icon || 'home'] || Building;
 
   return (
     <div className="flex items-center justify-between py-2 border-b last:border-0">
