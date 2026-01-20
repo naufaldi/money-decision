@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useMemo } from 'react';
 import { calculateResults } from '@/utils/calculators';
 import { Calculator as CalculatorIcon } from 'lucide-react';
+import { DailyLifeBreakdown } from '@/components/DailyLifeBreakdown';
 
 interface Step4ResultsProps {
   data: {
@@ -24,6 +25,11 @@ export function Step4Results({ data }: Step4ResultsProps) {
   const { allocation, savingsBreakdown, investmentBreakdown } = results;
   const income = data.income || 1;
 
+  // Calculate percentages from absolute allocation values
+  const needsPercent = Math.round((allocation.needs / income) * 100);
+  const savingsPercent = Math.round((allocation.savings / income) * 100);
+  const wantsPercent = Math.round((allocation.wants / income) * 100);
+
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
@@ -34,21 +40,14 @@ export function Step4Results({ data }: Step4ResultsProps) {
         <p className="text-muted-foreground">Your personalized budget allocation</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-center">Daily Life ({allocation.needs}%)</CardTitle>
-        </CardHeader>
-        <CardContent className="text-center">
-          <p className="text-2xl font-bold">Rp {(income * allocation.needs / 100).toLocaleString('id-ID')}</p>
-        </CardContent>
-      </Card>
+      <DailyLifeBreakdown amount={allocation.needs} percentage={needsPercent} />
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-center">Savings ({allocation.savings}%)</CardTitle>
+          <CardTitle className="text-center">Savings ({savingsPercent}%)</CardTitle>
         </CardHeader>
         <CardContent className="text-center">
-          <p className="text-2xl font-bold">Rp {(income * allocation.savings / 100).toLocaleString('id-ID')}</p>
+          <p className="text-2xl font-bold">Rp {allocation.savings.toLocaleString('id-ID')}</p>
           <p className="text-sm text-muted-foreground mt-2">
             Emergency Fund Target: Rp {savingsBreakdown.emergencyFundTarget.toLocaleString('id-ID')}
           </p>
@@ -57,14 +56,14 @@ export function Step4Results({ data }: Step4ResultsProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-center">Investment ({allocation.wants}%)</CardTitle>
+          <CardTitle className="text-center">Investment ({wantsPercent}%)</CardTitle>
         </CardHeader>
         <CardContent className="text-center">
-          <p className="text-2xl font-bold">Rp {(income * allocation.wants / 100).toLocaleString('id-ID')}</p>
+          <p className="text-2xl font-bold">Rp {allocation.wants.toLocaleString('id-ID')}</p>
           <div className="mt-4 space-y-2">
             {investmentBreakdown.recommendations.map((rec) => (
               <p key={rec.name} className="text-sm">
-                {rec.percentage}% {rec.name}
+                {Math.round(rec.percentage * 100)}% {rec.name}
               </p>
             ))}
           </div>

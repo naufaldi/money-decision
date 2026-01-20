@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { StepIndicators } from './StepIndicators';
 import { Step1Income } from './Step1Income';
 import { Step2Expenses } from './Step2Expenses';
@@ -15,16 +16,28 @@ interface WizardState {
   riskProfile: 'conservative' | 'moderate' | 'aggressive';
 }
 
-const initialState: WizardState = {
-  currentStep: 1,
-  income: null,
-  expenses: null,
-  selectedRuleId: '60-30-10',
-  riskProfile: 'conservative',
-};
-
 export function Wizard() {
-  const [state, setState] = useState<WizardState>(initialState);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Initialize state from URL params
+  const [state, setState] = useState<WizardState>(() => ({
+    currentStep: parseInt(searchParams.get('step') || '1', 10),
+    income: searchParams.get('income') ? parseInt(searchParams.get('income')!, 10) : null,
+    expenses: searchParams.get('expenses') ? parseInt(searchParams.get('expenses')!, 10) : null,
+    selectedRuleId: searchParams.get('rule') || '60-30-10',
+    riskProfile: (searchParams.get('risk') as 'conservative' | 'moderate' | 'aggressive') || 'conservative',
+  }));
+
+  // Sync state changes to URL
+  useEffect(() => {
+    const params: Record<string, string> = {};
+    params.step = state.currentStep.toString();
+    if (state.income) params.income = state.income.toString();
+    if (state.expenses) params.expenses = state.expenses.toString();
+    params.rule = state.selectedRuleId;
+    params.risk = state.riskProfile;
+    setSearchParams(params, { replace: true });
+  }, [state, setSearchParams]);
 
   const canProceed = useCallback(() => {
     switch (state.currentStep) {
