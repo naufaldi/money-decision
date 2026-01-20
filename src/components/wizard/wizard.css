@@ -1,0 +1,106 @@
+.wizard-container {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.wizard-card {
+  animation: slideIn 0.3s ease-out;
+}
+
+.wizard-step {
+  width: 100%;
+}
+
+.step-indicators {
+  margin-bottom: 2rem;
+}
+
+.step-indicators ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.step-indicator {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.step-indicator.completed {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  cursor: default;
+}
+
+.step-indicator.current {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.2);
+}
+
+.step-indicator.pending {
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  border: 2px solid hsl(var(--border));
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+}
+
+.step-item:not(:last-child)::after {
+  content: '';
+  width: 2rem;
+  height: 2px;
+  background-color: hsl(var(--border));
+  margin: 0 0.25rem;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+}
+
+.step-enter {
+  animation: slideIn 0.3s ease-out;
+}
+
+.step-exit {
+  animation: slideOut 0.2s ease-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step-enter,
+  .step-exit,
+  .wizard-card {
+    animation: none;
+  }
+}
