@@ -34,7 +34,7 @@ export function SalaryInsights({ income, province }: SalaryInsightsProps) {
   const provincePosition = provincePercentile !== null ? formatPercentile(provincePercentile) : null;
 
   return (
-    <Card className="mt-6 wizard-card">
+    <Card className="wizard-card mt-6">
       <CardHeader>
         <CardTitle className="text-center text-lg">Your Salary Position</CardTitle>
         <CardDescription className="text-center">
@@ -43,7 +43,7 @@ export function SalaryInsights({ income, province }: SalaryInsightsProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <span className="text-sm font-medium">Position in Indonesia:</span>
             <span className="text-sm font-semibold text-primary">{nationalPosition}</span>
           </div>
@@ -52,19 +52,17 @@ export function SalaryInsights({ income, province }: SalaryInsightsProps) {
           </div>
         </div>
         
-        {provincePosition && (
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
+        {provincePosition ? <div className="space-y-2">
+            <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Position in {province}:</span>
               <span className="text-sm font-semibold text-primary">{provincePosition}</span>
             </div>
             <div className="text-xs text-muted-foreground">
               {province} average: {formatCurrency(provinceData.total_august_2025)}/month
             </div>
-          </div>
-        )}
+          </div> : null}
 
-        <div className="pt-2 border-t">
+        <div className="border-t pt-2">
           <p className="text-xs text-muted-foreground">
             Note: Estimated from mean wages and inequality data. Not an official percentile calculation.
           </p>

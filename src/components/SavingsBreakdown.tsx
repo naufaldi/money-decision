@@ -54,16 +54,16 @@ export function SavingsBreakdown({
   return (
     <Card className="savings-card">
       <CardHeader
-        className="cursor-pointer hover:bg-muted/50 transition-colors"
+        className="cursor-pointer transition-colors hover:bg-muted/50"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <PiggyBank className="w-5 h-5 text-green-600" />
+            <div className="rounded-lg bg-green-100 p-2">
+              <PiggyBank className="h-5 w-5 text-green-600" />
             </div>
             <div>
-              <CardTitle className="text-lg flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-lg">
                 Savings
                 <span className="text-sm font-normal text-muted-foreground">
                   ({percentage}%)
@@ -79,16 +79,15 @@ export function SavingsBreakdown({
               {isExpanded ? 'Hide' : 'Show'} details
             </span>
             {isExpanded ? (
-              <ChevronUp className="w-4 h-4 text-muted-foreground" />
+              <ChevronUp className="h-4 w-4 text-muted-foreground" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
             )}
           </div>
         </div>
       </CardHeader>
-      {isExpanded && (
-        <CardContent className="pt-0 border-t">
-          <div className="space-y-3 mt-4">
+      {isExpanded ? <CardContent className="border-t pt-0">
+          <div className="mt-4 space-y-3">
             {breakdown.map(({ category, amount: categoryAmount }) => (
               <SubcategoryRow
                 key={category.id}
@@ -98,8 +97,7 @@ export function SavingsBreakdown({
               />
             ))}
           </div>
-        </CardContent>
-      )}
+        </CardContent> : null}
     </Card>
   );
 }
@@ -112,13 +110,13 @@ export function SavingsBreakdownComponent({ breakdown }: SavingsBreakdownCompone
   return (
     <Card className="savings-card">
       <CardHeader
-        className="cursor-pointer hover:bg-muted/50 transition-colors"
+        className="cursor-pointer transition-colors hover:bg-muted/50"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <PiggyBank className="w-5 h-5 text-green-600" />
+            <div className="rounded-lg bg-green-100 p-2">
+              <PiggyBank className="h-5 w-5 text-green-600" />
             </div>
             <div>
               <CardTitle className="text-lg">Savings Breakdown</CardTitle>
@@ -132,20 +130,19 @@ export function SavingsBreakdownComponent({ breakdown }: SavingsBreakdownCompone
               {isExpanded ? 'Hide' : 'Show'} details
             </span>
             {isExpanded ? (
-              <ChevronUp className="w-4 h-4 text-muted-foreground" />
+              <ChevronUp className="h-4 w-4 text-muted-foreground" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
             )}
           </div>
         </div>
       </CardHeader>
-      {isExpanded && (
-        <CardContent className="pt-0 border-t">
-          <div className="space-y-3 mt-4">
-            <div className="flex items-center justify-between py-2 border-b">
+      {isExpanded ? <CardContent className="border-t pt-0">
+          <div className="mt-4 space-y-3">
+            <div className="flex items-center justify-between border-b py-2">
               <div className="flex items-center gap-3">
-                <div className="p-1.5 bg-muted rounded-md">
-                  <Shield className="w-4 h-4 text-muted-foreground" />
+                <div className="rounded-md bg-muted p-1.5">
+                  <Shield className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <div>
                   <p className="text-sm font-medium">Emergency Fund</p>
@@ -156,10 +153,10 @@ export function SavingsBreakdownComponent({ breakdown }: SavingsBreakdownCompone
                 <p className="text-sm font-semibold">{formatCurrency(breakdown.emergencyFund)}</p>
               </div>
             </div>
-            <div className="flex items-center justify-between py-2 border-b">
+            <div className="flex items-center justify-between border-b py-2">
               <div className="flex items-center gap-3">
-                <div className="p-1.5 bg-muted rounded-md">
-                  <Target className="w-4 h-4 text-muted-foreground" />
+                <div className="rounded-md bg-muted p-1.5">
+                  <Target className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <div>
                   <p className="text-sm font-medium">Short-term Goals</p>
@@ -172,8 +169,8 @@ export function SavingsBreakdownComponent({ breakdown }: SavingsBreakdownCompone
             </div>
             <div className="flex items-center justify-between py-2">
               <div className="flex items-center gap-3">
-                <div className="p-1.5 bg-muted rounded-md">
-                  <GraduationCap className="w-4 h-4 text-muted-foreground" />
+                <div className="rounded-md bg-muted p-1.5">
+                  <GraduationCap className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <div>
                   <p className="text-sm font-medium">Long-term Goals</p>
@@ -185,8 +182,7 @@ export function SavingsBreakdownComponent({ breakdown }: SavingsBreakdownCompone
               </div>
             </div>
           </div>
-        </CardContent>
-      )}
+        </CardContent> : null}
     </Card>
   );
 }
@@ -203,22 +199,20 @@ function SubcategoryRow({
   totalAmount,
 }: SubcategoryRowProps) {
   const actualPercentage = (amount / totalAmount) * 100;
-  const Icon = iconMap[category.icon || 'wallet'] || PiggyBank;
+  const Icon = iconMap[category.icon ?? 'wallet'] ?? PiggyBank;
 
   return (
-    <div className="flex items-center justify-between py-2 border-b last:border-0">
+    <div className="flex items-center justify-between border-b py-2 last:border-0">
       <div className="flex items-center gap-3">
-        <div className="p-1.5 bg-muted rounded-md">
-          <Icon className="w-4 h-4 text-muted-foreground" />
+        <div className="rounded-md bg-muted p-1.5">
+          <Icon className="h-4 w-4 text-muted-foreground" />
         </div>
         <div>
           <p className="text-sm font-medium">{category.name}</p>
           <p className="text-xs text-muted-foreground">{category.description}</p>
-          {category.whereToKeep && (
-            <p className="text-xs text-green-600 mt-1">
+          {category.whereToKeep ? <p className="mt-1 text-xs text-green-600">
               Where to keep: {category.whereToKeep}
-            </p>
-          )}
+            </p> : null}
         </div>
       </div>
       <div className="text-right">

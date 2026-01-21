@@ -8,14 +8,14 @@ import wageData from '@/data/salary/avg_wages_total_august_2025.json';
 interface Step1IncomeProps {
   value: number | null;
   province: string | null;
-  onChange: (value: number) => void;
-  onProvinceChange: (province: string) => void;
+  onChange: (_value: number) => void;
+  onProvinceChange: (_province: string) => void;
 }
 
 const PROVINCES = wageData.map(item => item.province).sort();
 
 export function Step1Income({ value, province, onChange, onProvinceChange }: Step1IncomeProps) {
-  const [displayValue, setDisplayValue] = useState(formatCurrency(value || 0));
+  const [displayValue, setDisplayValue] = useState(formatCurrency(value ?? 0));
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -54,12 +54,12 @@ export function Step1Income({ value, province, onChange, onProvinceChange }: Ste
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <label htmlFor="province-select" className="block text-sm font-medium mb-2">
+          <label htmlFor="province-select" className="mb-2 block text-sm font-medium">
             Province <span className="text-destructive">*</span>
           </label>
           <Select
             id="province-select"
-            value={province || ''}
+            value={province ?? ''}
             onChange={(e) => onProvinceChange(e.target.value)}
             className="w-full"
             required
@@ -73,7 +73,7 @@ export function Step1Income({ value, province, onChange, onProvinceChange }: Ste
           </Select>
         </div>
         <div>
-          <label htmlFor="income-input" className="block text-sm font-medium mb-2">
+          <label htmlFor="income-input" className="mb-2 block text-sm font-medium">
             Monthly Income <span className="text-destructive">*</span>
           </label>
           <Input
@@ -89,11 +89,9 @@ export function Step1Income({ value, province, onChange, onProvinceChange }: Ste
             placeholder="0"
             className="text-lg font-semibold"
           />
-          {error && (
-            <p id="income-error" role="alert" className="text-sm text-destructive mt-2">
+          {error ? <p id="income-error" role="alert" className="mt-2 text-sm text-destructive">
               {error}
-            </p>
-          )}
+            </p> : null}
         </div>
       </CardContent>
     </Card>

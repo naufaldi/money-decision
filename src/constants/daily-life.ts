@@ -153,7 +153,7 @@ export function calculateSubcategoryAmount(
 export function calculateDailyLifeBreakdown(
   dailyLifeBudget: number,
   customPercentages?: Record<string, number>
-): Array<{ category: DailyLifeSubcategory; amount: number }> {
+): { category: DailyLifeSubcategory; amount: number }[] {
   return DAILY_LIFE_SUBCATEGORIES.map((category) => {
     const percentage =
       customPercentages?.[category.id] ?? category.defaultPercentage;

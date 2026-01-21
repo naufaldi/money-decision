@@ -17,7 +17,7 @@ import {
  * Calculate allocation based on income and budget rule
  */
 export function calculateAllocation(income: number, ruleId: string): AllocationResult {
-  const rule = BUDGET_RULES.find(r => r.id === ruleId) || BUDGET_RULES[1]; // Default to 60/30/10
+  const rule = BUDGET_RULES.find(r => r.id === ruleId) ?? BUDGET_RULES[1]; // Default to 60/30/10
 
   return {
     needs: income * rule.allocation.needs,
@@ -88,7 +88,7 @@ export function calculateResults(
  * Get budget rule by ID
  */
 export function getBudgetRule(ruleId: string): BudgetRule {
-  return BUDGET_RULES.find(r => r.id === ruleId) || BUDGET_RULES[1];
+  return BUDGET_RULES.find(r => r.id === ruleId) ?? BUDGET_RULES[1];
 }
 
 /**

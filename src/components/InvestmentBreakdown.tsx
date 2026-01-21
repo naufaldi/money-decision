@@ -21,13 +21,13 @@ interface InvestmentBreakdownProps {
   amount: number;
   percentage: number;
   riskProfile: string;
-  recommendations: Array<{
+  recommendations: {
     name: string;
     percentage: number;
     risk: 'low' | 'medium' | 'high' | 'very-high';
     description: string;
     warning?: string;
-  }>;
+  }[];
   defaultExpanded?: boolean;
 }
 
@@ -54,9 +54,9 @@ function getIconForInvestment(name: string): React.ElementType {
   if (lowercaseName.includes('pendapatan tetap')) return iconMap['reksadana-pendapatan-tetap'];
   if (lowercaseName.includes('saham')) return iconMap['reksadana-saham'];
   if (lowercaseName.includes('campuran')) return iconMap['reksadana-campuran'];
-  if (lowercaseName.includes('deposito')) return iconMap['deposito'];
-  if (lowercaseName.includes('crypto')) return iconMap['crypto'];
-  return iconMap['default'];
+  if (lowercaseName.includes('deposito')) return iconMap.deposito;
+  if (lowercaseName.includes('crypto')) return iconMap.crypto;
+  return iconMap.default;
 }
 
 export function InvestmentBreakdown({
@@ -71,16 +71,16 @@ export function InvestmentBreakdown({
   return (
     <Card className="investment-card">
       <CardHeader
-        className="cursor-pointer hover:bg-muted/50 transition-colors"
+        className="cursor-pointer transition-colors hover:bg-muted/50"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <TrendingUp className="w-5 h-5 text-blue-600" />
+            <div className="rounded-lg bg-blue-100 p-2">
+              <TrendingUp className="h-5 w-5 text-blue-600" />
             </div>
             <div>
-              <CardTitle className="text-lg flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-lg">
                 Investment
                 <span className="text-sm font-normal text-muted-foreground">
                   ({percentage}%)
@@ -96,21 +96,20 @@ export function InvestmentBreakdown({
               {isExpanded ? 'Hide' : 'Show'} details
             </span>
             {isExpanded ? (
-              <ChevronUp className="w-4 h-4 text-muted-foreground" />
+              <ChevronUp className="h-4 w-4 text-muted-foreground" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
             )}
           </div>
         </div>
       </CardHeader>
-      {isExpanded && (
-        <CardContent className="pt-0 border-t">
+      {!!isExpanded && <CardContent className="border-t pt-0">
           <div className="mb-3">
             <span className="text-xs text-muted-foreground">
               Risk Profile: <span className="font-medium capitalize">{riskProfile}</span>
             </span>
           </div>
-          <div className="space-y-3 mt-2">
+          <div className="mt-2 space-y-3">
             {recommendations.map((rec, index) => (
               <RecommendationRow
                 key={index}
@@ -119,8 +118,7 @@ export function InvestmentBreakdown({
               />
             ))}
           </div>
-        </CardContent>
-      )}
+        </CardContent>}
     </Card>
   );
 }
@@ -145,11 +143,11 @@ function RecommendationRow({
   const Icon = getIconForInvestment(recommendation.name);
 
   return (
-    <div className="border-b last:border-0 pb-3 last:pb-0">
+    <div className="border-b pb-3 last:border-0 last:pb-0">
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-3">
-          <div className="p-1.5 bg-muted rounded-md">
-            <Icon className="w-4 h-4 text-muted-foreground" />
+          <div className="rounded-md bg-muted p-1.5">
+            <Icon className="h-4 w-4 text-muted-foreground" />
           </div>
           <div>
             <p className="text-sm font-medium">{recommendation.name}</p>
@@ -165,22 +163,20 @@ function RecommendationRow({
           </p>
         </div>
       </div>
-      <div className="flex items-center gap-2 mt-1 ml-9">
+      <div className="ml-9 mt-1 flex items-center gap-2">
         <span
           className={cn(
-            'px-2 py-0.5 rounded text-xs capitalize',
+            'rounded px-2 py-0.5 text-xs capitalize',
             riskStyles[recommendation.risk]
           )}
         >
           {recommendation.risk} risk
         </span>
       </div>
-      {recommendation.warning && (
-        <div className="flex items-start gap-2 mt-2 ml-9 p-2 bg-orange-50 rounded text-sm text-orange-700">
-          <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+      {!!recommendation.warning && <div className="ml-9 mt-2 flex items-start gap-2 rounded bg-orange-50 p-2 text-sm text-orange-700">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
           <span>{recommendation.warning}</span>
-        </div>
-      )}
+        </div>}
     </div>
   );
 }

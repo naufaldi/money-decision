@@ -7,12 +7,12 @@ import { AlertTriangle } from 'lucide-react';
 
 interface Step2ExpensesProps {
   value: number | null;
-  onChange: (value: number) => void;
+  onChange: (_value: number) => void;
   income?: number;
 }
 
 export function Step2Expenses({ value, onChange, income }: Step2ExpensesProps) {
-  const [displayValue, setDisplayValue] = useState(formatCurrency(value || 0));
+  const [displayValue, setDisplayValue] = useState(formatCurrency(value ?? 0));
   const [warning, setWarning] = useState<string | null>(null);
   const [metrics, setMetrics] = useState<ReturnType<typeof computeExpenseMetrics> | null>(null);
 
@@ -59,15 +59,12 @@ export function Step2Expenses({ value, onChange, income }: Step2ExpensesProps) {
           placeholder="Enter total monthly expenses"
         />
 
-        {warning && (
-          <div role="alert" className="flex items-center gap-2 text-sm text-amber-600 p-3 bg-amber-50 rounded-lg">
-            <AlertTriangle className="w-4 h-4 shrink-0" />
+        {warning ? <div role="alert" className="flex items-center gap-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-600">
+            <AlertTriangle className="h-4 w-4 shrink-0" />
             <span>{warning}</span>
-          </div>
-        )}
+          </div> : null}
 
-        {showMetrics && metrics && (
-          <div className="space-y-3 p-4 bg-muted/50 rounded-lg">
+        {showMetrics && metrics ? <div className="space-y-3 rounded-lg bg-muted/50 p-4">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Spending ratio:</span>
               <span className="font-medium">{formatSpendingRatio(metrics.spendingRatio)}</span>
@@ -78,19 +75,14 @@ export function Step2Expenses({ value, onChange, income }: Step2ExpensesProps) {
                 {formatCurrency(metrics.cashflow)}
               </span>
             </div>
-            {metrics.isDeficit && (
-              <p className="text-xs text-amber-600 mt-2">
+            {metrics.isDeficit ? <p className="mt-2 text-xs text-amber-600">
                 You are spending more than you earn. Consider reducing expenses or increasing income.
-              </p>
-            )}
-          </div>
-        )}
+              </p> : null}
+          </div> : null}
 
-        {!showMetrics && income && income > 0 && (
-          <p className="text-xs text-muted-foreground text-center">
+        {!showMetrics && income && income > 0 ? <p className="text-center text-xs text-muted-foreground">
             Enter your expenses above to see your spending breakdown
-          </p>
-        )}
+          </p> : null}
       </CardContent>
     </Card>
   );

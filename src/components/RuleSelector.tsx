@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 
 interface RuleSelectorProps {
   selectedRuleId: string;
-  onChange: (ruleId: string) => void;
+  onChange: (_ruleId: string) => void;
 }
 
 export function RuleSelector({ selectedRuleId, onChange }: RuleSelectorProps) {
@@ -23,7 +23,7 @@ export function RuleSelector({ selectedRuleId, onChange }: RuleSelectorProps) {
             <label
               key={rule.id}
               className={cn(
-                "flex flex-col p-4 rounded-lg border-2 cursor-pointer transition-all",
+                "flex cursor-pointer flex-col rounded-lg border-2 p-4 transition-all",
                 selectedRuleId === rule.id
                   ? "border-primary bg-primary/5"
                   : "border-border hover:border-primary/50"
@@ -47,10 +47,10 @@ export function RuleSelector({ selectedRuleId, onChange }: RuleSelectorProps) {
                   </span>
                 )}
               </div>
-              <span className="text-sm text-muted-foreground mt-1">
+              <span className="mt-1 text-sm text-muted-foreground">
                 {rule.allocation.needs * 100}% needs • {rule.allocation.savings * 100}% savings • {rule.allocation.wants * 100}% wants
               </span>
-              <span className="text-sm mt-2">{rule.description}</span>
+              <span className="mt-2 text-sm">{rule.description}</span>
             </label>
           ))}
         </div>

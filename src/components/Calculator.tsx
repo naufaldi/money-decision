@@ -52,9 +52,9 @@ export function MoneyCalculator() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold flex items-center justify-center gap-2">
-          <CalculatorIcon className="w-8 h-8 text-primary" />
+      <div className="space-y-2 text-center">
+        <h1 className="flex items-center justify-center gap-2 text-3xl font-bold">
+          <CalculatorIcon className="h-8 w-8 text-primary" />
           Money Decision
         </h1>
         <p className="text-muted-foreground">
@@ -94,8 +94,7 @@ export function MoneyCalculator() {
       />
 
       {/* Results */}
-      {hasResults && (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {!!hasResults && <div className="animate-in fade-in slide-in-from-bottom-4 space-y-6 duration-500">
           {/* Main Allocation */}
           <ResultsDisplay allocation={results.allocation} />
 
@@ -112,18 +111,17 @@ export function MoneyCalculator() {
           {/* Reset Button */}
           <div className="flex justify-center">
             <Button variant="outline" onClick={handleReset} className="gap-2">
-              <RefreshCcw className="w-4 h-4" />
+              <RefreshCcw className="h-4 w-4" />
               Reset Calculator
             </Button>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* Empty State */}
       {!hasResults && (
         <Card className="bg-muted/50">
           <CardContent className="py-8 text-center">
-            <TrendingUp className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+            <TrendingUp className="mx-auto mb-3 h-12 w-12 text-muted-foreground" />
             <p className="text-muted-foreground">
               Enter your income above to see your personalized budget allocation
             </p>

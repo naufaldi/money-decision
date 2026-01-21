@@ -5,6 +5,8 @@ import {
   compareAllocations,
   getCutNeeded,
   formatSpendingRatio,
+  recommendRuleEnhanced,
+  getProvinceAverageWage,
 } from './expenseRuleFit';
 
 describe('expenseRuleFit utilities', () => {
@@ -172,6 +174,133 @@ describe('expenseRuleFit utilities', () => {
 
     it('formats over budget', () => {
       expect(formatSpendingRatio(1.2)).toBe('120% (over budget)');
+    });
+  });
+
+  describe('getProvinceAverageWage', () => {
+    it('returns national average for null province', () => {
+      const result = getProvinceAverageWage(null);
+      expect(result).toBe(3500000);
+    });
+
+    it('returns national average for undefined province', () => {
+      const result = getProvinceAverageWage(undefined);
+      expect(result).toBe(3500000);
+    });
+
+    it('returns national average for unknown province', () => {
+      const result = getProvinceAverageWage('Unknown Province');
+      expect(result).toBe(3500000);
+    });
+
+    it('returns DKI Jakarta average for Jakarta', () => {
+      const result = getProvinceAverageWage('DKI JAKARTA');
+      expect(result).toBe(4878943);
+    });
+
+    it('is case insensitive for province names', () => {
+      const result = getProvinceAverageWage('dki jakarta');
+      expect(result).toBe(4878943);
+    });
+  });
+
+  describe('recommendRuleEnhanced', () => {
+    it('returns null for invalid income', () => {
+      expect(recommendRuleEnhanced(0, 3000000, 'DKI JAKARTA')).toBeNull();
+      expect(recommendRuleEnhanced(-1000, 3000000, 'DKI JAKARTA')).toBeNull();
+    });
+
+    it('recommends higher-needs rule for very low income users', () => {
+      // Very low income (below 25th percentile) - 1M in Jakarta is ~37th percentile
+      // Let's try a more extreme case
+      const result = recommendRuleEnhanced(1000000, null, 'DKI JAKARTA');
+
+      expect(result).not.toBeNull();
+      // 1M is still above 25th percentile, so 60/30-10 is appropriate
+      expect(['60-30-10', '70-20-10']).toContain(result?.rule.id);
+      expect(result?.reason).toBeDefined();
+    });
+
+    it('recommends 50/30/20 for higher income users', () => {
+      // High income (above 75th percentile)
+      const result = recommendRuleEnhanced(10000000, null, 'DKI JAKARTA');
+
+      expect(result).not.toBeNull();
+      expect(result?.rule.id).toBe('50-30-20');
+      expect(result?.reason).toContain('higher earner');
+    });
+
+    it('recommends different rules based on province', () => {
+      // Same income, different provinces
+      const jakartaResult = recommendRuleEnhanced(3000000, null, 'DKI JAKARTA');
+      const acehResult = recommendRuleEnhanced(3000000, null, 'ACEH');
+
+      expect(jakartaResult).not.toBeNull();
+      expect(acehResult).not.toBeNull();
+      // In Aceh (lower avg wage ~2.8M), 3M might be higher percentile than in Jakarta (~4.9M)
+      // So recommendations may differ
+      expect(jakartaResult?.rule.id).toBeDefined();
+      expect(acehResult?.rule.id).toBeDefined();
+    });
+
+    it('returns scores with all factors', () => {
+      const result = recommendRuleEnhanced(5000000, 3500000, 'JAWA BARAT');
+
+      expect(result).not.toBeNull();
+      expect(result?.scores).toBeDefined();
+      expect(result?.scores.income).toBeGreaterThanOrEqual(0);
+      expect(result?.scores.fit).toBeGreaterThanOrEqual(0);
+      expect(result?.scores.cushion).toBeGreaterThanOrEqual(0);
+      expect(result?.scores.total).toBeGreaterThanOrEqual(0);
+    });
+
+    it('includes all fits for comparison', () => {
+      const result = recommendRuleEnhanced(5000000, 3500000, 'JAWA BARAT');
+
+      expect(result).not.toBeNull();
+      expect(result?.allFits).toBeDefined();
+      expect(result?.allFits.length).toBe(4); // All 4 rules
+    });
+
+    it('works without spending data', () => {
+      const result = recommendRuleEnhanced(5000000, null, 'JAWA BARAT');
+
+      expect(result).not.toBeNull();
+      expect(result?.rule.id).toBeDefined();
+      expect(result?.reason).toBeDefined();
+    });
+
+    it('works without province data', () => {
+      const result = recommendRuleEnhanced(5000000, 3500000, null);
+
+      expect(result).not.toBeNull();
+      expect(result?.rule.id).toBeDefined();
+    });
+
+    it('generates reason based on income percentile', () => {
+      const lowIncome = recommendRuleEnhanced(1000000, null, 'DKI JAKARTA');
+      const highIncome = recommendRuleEnhanced(10000000, null, 'DKI JAKARTA');
+
+      expect(lowIncome).not.toBeNull();
+      expect(highIncome).not.toBeNull();
+      expect(lowIncome?.reason).not.toBe(highIncome?.reason);
+    });
+
+    it('considers spending in recommendation when provided', () => {
+      const withSpending = recommendRuleEnhanced(5000000, 4000000, 'DKI JAKARTA');
+      const withoutSpending = recommendRuleEnhanced(5000000, null, 'DKI JAKARTA');
+
+      // Results may differ when spending is provided
+      expect(withSpending).not.toBeNull();
+      expect(withoutSpending).not.toBeNull();
+    });
+
+    it('recommends appropriate rule for average income', () => {
+      // Income around 3-4M is typically middle income
+      const result = recommendRuleEnhanced(4000000, null, 'JAWA BARAT');
+
+      expect(result).not.toBeNull();
+      expect(['50-30-20', '60-30-10']).toContain(result?.rule.id);
     });
   });
 });

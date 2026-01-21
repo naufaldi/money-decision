@@ -23,12 +23,12 @@ export function Wizard() {
 
   // Initialize state from URL params
   const [state, setState] = useState<WizardState>(() => ({
-    currentStep: parseInt(searchParams.get('step') || '1', 10),
+    currentStep: parseInt(searchParams.get('step') ?? '1', 10),
     income: searchParams.get('income') ? parseInt(searchParams.get('income')!, 10) : null,
     expenses: searchParams.get('expenses') ? parseInt(searchParams.get('expenses')!, 10) : null,
-    selectedRuleId: searchParams.get('rule') || '60-30-10',
-    riskProfile: (searchParams.get('risk') as 'conservative' | 'moderate' | 'aggressive') || 'conservative',
-    province: searchParams.get('province') || null,
+    selectedRuleId: searchParams.get('rule') ?? '60-30-10',
+    riskProfile: (searchParams.get('risk') as 'conservative' | 'moderate' | 'aggressive') ?? 'conservative',
+    province: searchParams.get('province') ?? null,
   }));
 
   // Sync state changes to URL
@@ -100,7 +100,7 @@ export function Wizard() {
         return (
           <Step2Expenses
             value={state.expenses}
-            income={state.income || undefined}
+            income={state.income ?? undefined}
             onChange={(v) => setState((s) => ({ ...s, expenses: v }))}
           />
         );
@@ -111,6 +111,7 @@ export function Wizard() {
             onChange={(v) => setState((s) => ({ ...s, selectedRuleId: v }))}
             income={state.income ?? undefined}
             expenses={state.expenses ?? undefined}
+            province={state.province}
           />
         );
       case 4:
@@ -130,23 +131,21 @@ export function Wizard() {
       </div>
       <StepIndicators current={state.currentStep} total={4} />
       {renderStep()}
-      {state.currentStep >= 2 && state.income && state.province && (
-        <SalaryInsights income={state.income} province={state.province} />
-      )}
+      {state.currentStep >= 2 && !!state.income && !!state.province && <SalaryInsights income={state.income} province={state.province} />}
       {state.currentStep < 4 && (
-        <div className="flex justify-between mt-6">
+        <div className="mt-6 flex justify-between">
           <Button
             variant="outline"
             onClick={handleBack}
             disabled={state.currentStep === 1}
             className="gap-2"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="h-4 w-4" />
             Back
           </Button>
           <Button onClick={handleNext} disabled={!canProceed()} className="gap-2">
             Continue
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
       )}

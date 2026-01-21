@@ -9,7 +9,7 @@ import { AlertTriangle } from 'lucide-react';
 interface InvestmentProfileProps {
   breakdown: InvestmentBreakdown;
   riskProfile: RiskProfile;
-  onRiskProfileChange: (profile: RiskProfile) => void;
+  onRiskProfileChange: (_profile: RiskProfile) => void;
 }
 
 export function InvestmentProfile({ breakdown, riskProfile, onRiskProfileChange }: InvestmentProfileProps) {
@@ -56,19 +56,19 @@ export function InvestmentProfile({ breakdown, riskProfile, onRiskProfileChange 
         </div>
 
         {/* Investment Breakdown */}
-        <div className="space-y-3 mt-4">
+        <div className="mt-4 space-y-3">
           {recommendations.map((rec, index) => (
-            <div key={index} className="p-3 rounded-lg border">
-              <div className="flex justify-between items-start mb-1">
+            <div key={index} className="rounded-lg border p-3">
+              <div className="mb-1 flex items-start justify-between">
                 <span className="font-medium">{rec.name}</span>
                 <span className="text-sm text-muted-foreground">
                   {formatCurrency(rec.amount)}
                 </span>
               </div>
-              <div className="flex justify-between items-center text-sm text-muted-foreground mb-2">
+              <div className="mb-2 flex items-center justify-between text-sm text-muted-foreground">
                 <span>{rec.percentage * 100}% of investment</span>
                 <span className={cn(
-                  "px-2 py-0.5 rounded text-xs",
+                  "rounded px-2 py-0.5 text-xs",
                   rec.risk === 'low' && "bg-green-100 text-green-700",
                   rec.risk === 'medium' && "bg-yellow-100 text-yellow-700",
                   rec.risk === 'high' && "bg-orange-100 text-orange-700",
@@ -78,18 +78,16 @@ export function InvestmentProfile({ breakdown, riskProfile, onRiskProfileChange 
                 </span>
               </div>
               <p className="text-sm text-muted-foreground">{rec.description}</p>
-              {rec.warning && (
-                <div className="flex items-start gap-2 mt-2 p-2 bg-orange-50 rounded text-sm text-orange-700">
-                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+              {rec.warning ? <div className="mt-2 flex items-start gap-2 rounded bg-orange-50 p-2 text-sm text-orange-700">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                   <span>{rec.warning}</span>
-                </div>
-              )}
+                </div> : null}
             </div>
           ))}
         </div>
 
-        <div className="pt-2 border-t">
-          <div className="flex justify-between items-center text-sm">
+        <div className="border-t pt-2">
+          <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Total Investment</span>
             <span className="font-semibold">{formatCurrency(breakdown.totalInvestment)}</span>
           </div>

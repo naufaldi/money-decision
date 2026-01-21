@@ -5,7 +5,7 @@ import { formatCurrency } from '@/utils/formatters';
 
 interface IncomeInputProps {
   value: number;
-  onChange: (value: number) => void;
+  onChange: (_value: number) => void;
 }
 
 export function IncomeInput({ value, onChange }: IncomeInputProps) {
@@ -48,7 +48,7 @@ export function IncomeInput({ value, onChange }: IncomeInputProps) {
             className="pl-8 text-lg font-semibold"
           />
         </div>
-        <p className="text-sm text-muted-foreground mt-2">
+        <p className="mt-2 text-sm text-muted-foreground">
           Enter your take-home monthly income
         </p>
       </CardContent>

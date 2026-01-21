@@ -76,7 +76,7 @@ export function calculateSubcategoryAmount(
 export function calculateSavingsBreakdown(
   savingsBudget: number,
   customPercentages?: Record<string, number>
-): Array<{ category: SavingsSubcategory; amount: number }> {
+): { category: SavingsSubcategory; amount: number }[] {
   return SAVINGS_SUBCATEGORIES.map((category) => {
     const percentage =
       customPercentages?.[category.id] ?? category.defaultPercentage;

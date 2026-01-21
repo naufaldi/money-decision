@@ -48,9 +48,9 @@ export function ResultsDisplay({ allocation }: ResultsDisplayProps) {
             const percentage = total > 0 ? category.amount / total : 0;
             return (
               <div key={category.key}>
-                <div className="flex justify-between items-center mb-2">
+                <div className="mb-2 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className={cn("w-3 h-3 rounded-full", category.color)} />
+                    <div className={cn("h-3 w-3 rounded-full", category.color)} />
                     <span className="font-medium">{category.label}</span>
                   </div>
                   <div className="text-right">
@@ -60,7 +60,7 @@ export function ResultsDisplay({ allocation }: ResultsDisplayProps) {
                     </div>
                   </div>
                 </div>
-                <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
+                <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
                   <div
                     className={cn("h-full transition-all duration-300", category.color)}
                     style={{ width: `${percentage * 100}%` }}
@@ -74,7 +74,7 @@ export function ResultsDisplay({ allocation }: ResultsDisplayProps) {
 
       <Card className="bg-muted/50">
         <CardContent className="py-4">
-          <div className="flex justify-between items-center text-sm">
+          <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Total Monthly Income</span>
             <span className="font-semibold">{formatCurrency(total)}</span>
           </div>

@@ -16,7 +16,7 @@ export function formatCurrency(amount: number): string {
  * Format a number as percentage
  * Example: 0.5 -> "50%"
  */
-export function formatPercentage(value: number, decimals: number = 0): string {
+export function formatPercentage(value: number, decimals = 0): string {
   if (isNaN(value) || value === null || value === undefined) {
     return '0%';
   }

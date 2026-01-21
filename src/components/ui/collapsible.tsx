@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 
 interface CollapsibleProps extends React.HTMLAttributes<HTMLDivElement> {
   open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  onOpenChange?: (_open: boolean) => void;
   defaultOpen?: boolean;
 }
 
@@ -20,7 +20,7 @@ const Collapsible = ({
   ...props
 }: CollapsibleProps) => {
   const [internalOpen, setInternalOpen] = React.useState(defaultOpen);
-  const isOpen = open !== undefined ? open : internalOpen;
+  const isOpen = open ?? internalOpen;
 
   const handleToggle = () => {
     if (open === undefined) {

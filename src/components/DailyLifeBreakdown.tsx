@@ -60,16 +60,16 @@ export function DailyLifeBreakdown({
   return (
     <Card className="daily-life-card">
       <CardHeader
-        className="cursor-pointer hover:bg-muted/50 transition-colors"
+        className="cursor-pointer transition-colors hover:bg-muted/50"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <Building className="w-5 h-5 text-primary" />
+            <div className="rounded-lg bg-primary/10 p-2">
+              <Building className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-lg flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-lg">
                 Daily Life
                 <span className="text-sm font-normal text-muted-foreground">
                   ({percentage}%)
@@ -85,16 +85,15 @@ export function DailyLifeBreakdown({
               {isExpanded ? 'Hide' : 'Show'} details
             </span>
             {isExpanded ? (
-              <ChevronUp className="w-4 h-4 text-muted-foreground" />
+              <ChevronUp className="h-4 w-4 text-muted-foreground" />
             ) : (
-              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
             )}
           </div>
         </div>
       </CardHeader>
-      {isExpanded && (
-        <CardContent className="pt-0 border-t">
-          <div className="space-y-3 mt-4">
+      {!!isExpanded && <CardContent className="border-t pt-0">
+          <div className="mt-4 space-y-3">
             {breakdown.map(({ category, amount: categoryAmount }) => (
               <SubcategoryRow
                 key={category.id}
@@ -104,8 +103,7 @@ export function DailyLifeBreakdown({
               />
             ))}
           </div>
-        </CardContent>
-      )}
+        </CardContent>}
     </Card>
   );
 }
@@ -122,13 +120,13 @@ function SubcategoryRow({
   totalAmount,
 }: SubcategoryRowProps) {
   const actualPercentage = (amount / totalAmount) * 100;
-  const Icon = iconMap[category.icon || 'home'] || Building;
+  const Icon = iconMap[category.icon ?? 'home'] || Building;
 
   return (
-    <div className="flex items-center justify-between py-2 border-b last:border-0">
+    <div className="flex items-center justify-between border-b py-2 last:border-0">
       <div className="flex items-center gap-3">
-        <div className="p-1.5 bg-muted rounded-md">
-          <Icon className="w-4 h-4 text-muted-foreground" />
+        <div className="rounded-md bg-muted p-1.5">
+          <Icon className="h-4 w-4 text-muted-foreground" />
         </div>
         <div>
           <p className="text-sm font-medium">{category.name}</p>
