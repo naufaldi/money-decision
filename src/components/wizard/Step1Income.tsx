@@ -1,14 +1,20 @@
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { formatCurrency } from '@/utils/formatters';
+import wageData from '@/data/salary/avg_wages_total_august_2025.json';
 
 interface Step1IncomeProps {
   value: number | null;
+  province: string | null;
   onChange: (value: number) => void;
+  onProvinceChange: (province: string) => void;
 }
 
-export function Step1Income({ value, onChange }: Step1IncomeProps) {
+const PROVINCES = wageData.map(item => item.province).sort();
+
+export function Step1Income({ value, province, onChange, onProvinceChange }: Step1IncomeProps) {
   const [displayValue, setDisplayValue] = useState(formatCurrency(value || 0));
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -46,24 +52,49 @@ export function Step1Income({ value, onChange }: Step1IncomeProps) {
         <CardTitle className="text-center">Enter Your Income</CardTitle>
         <CardDescription className="text-center">Enter your monthly take-home income</CardDescription>
       </CardHeader>
-      <CardContent>
-        <Input
-          ref={inputRef}
-          type="text"
-          aria-label="Monthly income"
-          aria-describedby={error ? 'income-error' : undefined}
-          aria-invalid={error ? true : undefined}
-          value={displayValue}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          placeholder="0"
-          className="text-lg font-semibold"
-        />
-        {error && (
-          <p id="income-error" role="alert" className="text-sm text-destructive mt-2">
-            {error}
-          </p>
-        )}
+      <CardContent className="space-y-4">
+        <div>
+          <label htmlFor="province-select" className="block text-sm font-medium mb-2">
+            Province <span className="text-destructive">*</span>
+          </label>
+          <Select
+            id="province-select"
+            value={province || ''}
+            onChange={(e) => onProvinceChange(e.target.value)}
+            className="w-full"
+            required
+          >
+            <option value="">Select a province</option>
+            {PROVINCES.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+          </Select>
+        </div>
+        <div>
+          <label htmlFor="income-input" className="block text-sm font-medium mb-2">
+            Monthly Income <span className="text-destructive">*</span>
+          </label>
+          <Input
+            id="income-input"
+            ref={inputRef}
+            type="text"
+            aria-label="Monthly income"
+            aria-describedby={error ? 'income-error' : undefined}
+            aria-invalid={error ? true : undefined}
+            value={displayValue}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            placeholder="0"
+            className="text-lg font-semibold"
+          />
+          {error && (
+            <p id="income-error" role="alert" className="text-sm text-destructive mt-2">
+              {error}
+            </p>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

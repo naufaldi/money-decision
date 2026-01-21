@@ -1,17 +1,18 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { recommendRule } from '@/utils/expenseRuleFit';
+import { Check, Sparkles } from 'lucide-react';
 
 interface Step3RuleProps {
   selected: string;
   onChange: (value: string) => void;
+  income?: number;
+  expenses?: number;
 }
 
-const RULES = [
-  { id: '60-30-10', name: '60/30/10', description: 'Recommended for beginners' },
-  { id: '50-30-20', name: '50/30/20', description: 'Balanced approach' },
-  { id: '70-20-10', name: '70/20/10', description: 'Higher lifestyle allocation' },
-];
+export function Step3Rule({ selected, onChange, income, expenses }: Step3RuleProps) {
+  const recommendation = income && income > 0 ? recommendRule(income, expenses ?? null) : null;
+  const showRecommendation = recommendation && recommendation.rule.id !== selected;
 
-export function Step3Rule({ selected, onChange }: Step3RuleProps) {
   return (
     <Card className="wizard-card">
       <CardHeader>
@@ -19,6 +20,17 @@ export function Step3Rule({ selected, onChange }: Step3RuleProps) {
         <CardDescription className="text-center">Choose the allocation strategy that fits your goals</CardDescription>
       </CardHeader>
       <CardContent>
+        {showRecommendation && (
+          <div className="mb-4 p-3 bg-primary/10 border border-primary/20 rounded-lg">
+            <div className="flex items-center gap-2 text-sm font-medium text-primary mb-1">
+              <Sparkles className="w-4 h-4" />
+              Recommended based on your spending
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {recommendation.reason}
+            </p>
+          </div>
+        )}
         <fieldset className="space-y-3">
           <legend className="sr-only">Choose a budget rule</legend>
           {RULES.map((rule) => (
@@ -43,6 +55,18 @@ export function Step3Rule({ selected, onChange }: Step3RuleProps) {
               <span id={`${rule.id}-description`} className="text-muted-foreground text-sm">
                 {rule.description}
               </span>
+              {recommendation?.rule.id === rule.id && selected !== rule.id && (
+                <span className="ml-auto inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded-full">
+                  <Sparkles className="w-3 h-3" />
+                  Suggested
+                </span>
+              )}
+              {selected === rule.id && (
+                <span className="ml-auto inline-flex items-center gap-1 px-2 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-full">
+                  <Check className="w-3 h-3" />
+                  Selected
+                </span>
+              )}
             </label>
           ))}
         </fieldset>
@@ -50,3 +74,9 @@ export function Step3Rule({ selected, onChange }: Step3RuleProps) {
     </Card>
   );
 }
+
+const RULES = [
+  { id: '60-30-10', name: '60/30/10', description: 'Recommended for beginners' },
+  { id: '50-30-20', name: '50/30/20', description: 'Balanced approach' },
+  { id: '70-20-10', name: '70/20/10', description: 'Higher lifestyle allocation' },
+];

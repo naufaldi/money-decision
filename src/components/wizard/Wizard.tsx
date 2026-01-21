@@ -5,6 +5,7 @@ import { Step1Income } from './Step1Income';
 import { Step2Expenses } from './Step2Expenses';
 import { Step3Rule } from './Step3Rule';
 import { Step4Results } from './Step4Results';
+import { SalaryInsights } from './SalaryInsights';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
@@ -14,6 +15,7 @@ interface WizardState {
   expenses: number | null;
   selectedRuleId: string;
   riskProfile: 'conservative' | 'moderate' | 'aggressive';
+  province: string | null;
 }
 
 export function Wizard() {
@@ -26,6 +28,7 @@ export function Wizard() {
     expenses: searchParams.get('expenses') ? parseInt(searchParams.get('expenses')!, 10) : null,
     selectedRuleId: searchParams.get('rule') || '60-30-10',
     riskProfile: (searchParams.get('risk') as 'conservative' | 'moderate' | 'aggressive') || 'conservative',
+    province: searchParams.get('province') || null,
   }));
 
   // Sync state changes to URL
@@ -36,13 +39,14 @@ export function Wizard() {
     if (state.expenses) params.expenses = state.expenses.toString();
     params.rule = state.selectedRuleId;
     params.risk = state.riskProfile;
+    if (state.province) params.province = state.province;
     setSearchParams(params, { replace: true });
   }, [state, setSearchParams]);
 
   const canProceed = useCallback(() => {
     switch (state.currentStep) {
       case 1:
-        return state.income !== null && state.income > 0;
+        return state.income !== null && state.income > 0 && state.province !== null && state.province !== '';
       case 2:
         return true;
       case 3:
@@ -87,7 +91,9 @@ export function Wizard() {
         return (
           <Step1Income
             value={state.income}
+            province={state.province}
             onChange={(v) => setState((s) => ({ ...s, income: v }))}
+            onProvinceChange={(p) => setState((s) => ({ ...s, province: p }))}
           />
         );
       case 2:
@@ -103,6 +109,8 @@ export function Wizard() {
           <Step3Rule
             selected={state.selectedRuleId}
             onChange={(v) => setState((s) => ({ ...s, selectedRuleId: v }))}
+            income={state.income ?? undefined}
+            expenses={state.expenses ?? undefined}
           />
         );
       case 4:
@@ -122,6 +130,9 @@ export function Wizard() {
       </div>
       <StepIndicators current={state.currentStep} total={4} />
       {renderStep()}
+      {state.currentStep >= 2 && state.income && state.province && (
+        <SalaryInsights income={state.income} province={state.province} />
+      )}
       {state.currentStep < 4 && (
         <div className="flex justify-between mt-6">
           <Button
