@@ -91,4 +91,5 @@ export interface CalculatorResult {
   allocation: AllocationResult;
   savingsBreakdown: SavingsBreakdown;
   investmentBreakdown: InvestmentBreakdown;
+  pinjolMonthlyPayment?: number;
 }

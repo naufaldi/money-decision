@@ -12,7 +12,7 @@ import {
   SAVINGS_BREAKDOWN,
   EMERGENCY_FUND_MONTHS,
 } from '@/constants/rules';
-import { getPinjolRiskLevel } from './pinjolCalculator';
+import { getPinjolRiskLevel, calculateRequiredPayment, calculateMonthlyInterest } from './pinjolCalculator';
 
 /**
  * Family context for adjusted calculations
@@ -103,6 +103,43 @@ export function getEmergencyFundMonthsTarget(isSandwichGeneration: boolean): num
 }
 
 /**
+ * Calculate recommended monthly Pinjol payment
+ * Uses 24-month payoff target, with fallback to minimum payment (interest + small principal)
+ */
+export function calculatePinjolMonthlyPayment(
+  debtAmount: number,
+  monthlyInterestRate: number
+): number {
+  if (!debtAmount || !monthlyInterestRate || debtAmount <= 0 || monthlyInterestRate <= 0) {
+    return 0;
+  }
+
+  try {
+    // Try to calculate payment for 24-month payoff
+    const requiredPayment = calculateRequiredPayment({
+      principal: debtAmount,
+      monthlyInterestRate: monthlyInterestRate,
+      targetMonths: 24,
+    });
+
+    // Validate the payment is reasonable (not more than 50% of debt, not less than interest)
+    const monthlyInterestCost = calculateMonthlyInterest(debtAmount, monthlyInterestRate);
+    const maxReasonablePayment = debtAmount * 0.5; // Cap at 50% of debt per month
+
+    if (requiredPayment >= monthlyInterestCost && requiredPayment <= maxReasonablePayment) {
+      return Math.ceil(requiredPayment);
+    }
+  } catch (error) {
+    // Fall through to fallback calculation
+  }
+
+  // Fallback: minimum payment = interest + small principal portion (5% annually = ~0.42% monthly)
+  const monthlyInterestCost = calculateMonthlyInterest(debtAmount, monthlyInterestRate);
+  const principalPortion = debtAmount * 0.05 / 12; // 5% of principal per year, divided by 12 months
+  return Math.ceil(monthlyInterestCost + principalPortion);
+}
+
+/**
  * Calculate allocation based on income and budget rule
  */
 export function calculateAllocation(income: number, ruleId: string): AllocationResult {
@@ -175,7 +212,17 @@ export function calculateResults(
     effectiveIncome = adjustment.adjustedIncome;
   }
 
-  // Calculate allocations based on adjusted income
+  // Subtract Pinjol debt payment if applicable
+  let pinjolMonthlyPayment: number | undefined;
+  if (familyContext?.hasPinjolDebt && familyContext.pinjolDebtAmount && familyContext.pinjolMonthlyInterest) {
+    pinjolMonthlyPayment = calculatePinjolMonthlyPayment(
+      familyContext.pinjolDebtAmount,
+      familyContext.pinjolMonthlyInterest
+    );
+    effectiveIncome = Math.max(0, effectiveIncome - pinjolMonthlyPayment);
+  }
+
+  // Calculate allocations based on adjusted income (after sandwich and Pinjol deductions)
   const allocation = calculateAllocation(effectiveIncome, ruleId);
   const savingsBreakdown = calculateSavingsBreakdown(allocation.savings, monthlyExpenses);
   const investmentBreakdown = calculateInvestmentBreakdown(allocation.wants, riskProfile);
@@ -184,6 +231,7 @@ export function calculateResults(
     allocation,
     savingsBreakdown,
     investmentBreakdown,
+    pinjolMonthlyPayment,
   };
 }
 

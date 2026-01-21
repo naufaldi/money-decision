@@ -188,14 +188,18 @@ export function Step4Results({ data }: Step4ResultsProps) {
         />
       ) : null}
 
-      {(data.hasElderlyParents || data.hasOtherFamily) &&
-      data.familySupportAmount &&
-      data.familySupportAmount > 0 ? (
+      {((data.hasElderlyParents || data.hasOtherFamily) &&
+        data.familySupportAmount &&
+        data.familySupportAmount > 0) ||
+      (data.hasPinjolDebt && data.pinjolDebtAmount && data.pinjolDebtInterest) ? (
         <SandwichGenerationNotice
           income={data.income ?? 0}
-          familySupportAmount={data.familySupportAmount}
+          familySupportAmount={data.familySupportAmount ?? 0}
           hasElderlyParents={data.hasElderlyParents}
           hasOtherFamily={data.hasOtherFamily}
+          hasPinjolDebt={data.hasPinjolDebt}
+          pinjolDebtAmount={data.pinjolDebtAmount}
+          pinjolDebtInterest={data.pinjolDebtInterest}
         />
       ) : null}
 
