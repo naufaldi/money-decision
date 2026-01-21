@@ -109,6 +109,182 @@ For makers and freelancers with variable income, we recommend:
 
 ---
 
+## 2A. Indonesian Pinjol (Online Loans) Decision
+
+### 2A.1 Overview
+
+Pinjol (pinjaman online/online loans) represents a significant financial decision point for Indonesian users. With **9.18 million pinjol accounts** among ages 19-34 totaling **Rp 28.80 trillion** in outstanding loans (OJK data), understanding the implications of pinjol usage is critical for sound financial decision-making.
+
+### 2A.2 The Pinjol Decision
+
+Users must decide whether and how to approach pinjol:
+
+||| Decision Point | Options | Guidance |
+|||----------------|---------|----------|
+||| **Current Pinjol Usage** | Have active pinjol debt / No pinjol debt | Determines if emergency debt intervention is needed |
+||| **Pinjol Consideration** | Need emergency funds / Cash flow gap / Consumption | Different guidance based on purpose |
+||| **Debt Priority** | High-interest (>50% APR) / Moderate (<30% APR) | Affects payoff strategy |
+
+### 2A.3 Pinjol Risk Categories
+
+||| Risk Level | APR Range | Characteristics | Recommendation |
+|||------------|-----------|-----------------|----------------|
+||| **Critical** | >100% APR | Illegal lenders, debt spiraling | Immediate intervention required |
+||| **High** | 50-100% APR | Legal but predatory | Prioritize payoff aggressively |
+||| **Moderate** | 30-50% APR | Some regulated lenders | Consider refinancing options |
+||| **Low** | <30% APR | Regulated, transparent | Manage like other debt |
+
+### 2A.4 Pinjol Intervention Flow
+
+```
+User has pinjol debt?
+        │
+        ├── YES ──► What interest rate?
+        │              │
+        │              ├── >50% APR ──► STOP taking new pinjol
+        │              │                    List all debts
+        │              │                    Consider debt consolidation
+        │              │                    Avalanche method: highest rate first
+        │              │
+        │              └── <50% APR ──► Include in budget allocation
+        │                              Track alongside other debts
+        │                              Consider refinancing to formal bank
+        │
+        └── NO ──► Planning to use pinjol?
+                      │
+                      ├── Emergency fund needed? ──► Build emergency fund first
+                      │
+                      └── Cash flow gap? ──► Consider alternatives (family, employer advance)
+```
+
+### 2A.5 Pinjol Statistics & Warnings
+
+**Key Data Points:**
+- 9.18 million pinjol accounts ages 19-34 (OJK 2024)
+- Rp 28.80 trillion total outstanding pinjol loans
+- 90,000+ pinjol accounts among under-19 (indicates underage borrowing)
+- Many roll over loans monthly, creating debt spiral
+
+**Warning Signs:**
+- Taking new pinjol to pay off existing pinjol
+- Monthly payment > 30% of income
+- Not knowing total pinjol debt across all apps
+- Borrowing for consumption (not emergencies)
+
+### 2A.6 Resources & Support
+
+- **OJK Hotline**: 157 (for complaints and counseling)
+- **Financial辅导员**: Free consultations available
+- **Debt consolidation**: Formal banks offer lower interest rates (12-24% APR)
+
+---
+
+## 2B. Sandwich Generation Decision
+
+### 2B.1 Overview
+
+The "sandwich generation" refers to individuals who support both their elderly parents and their children/younger siblings simultaneously. In Indonesia, approximately **71 million people** (BPS 2020 data) are part of this demographic, representing a significant portion of the population that faces unique financial pressures.
+
+### 2B.2 The Sandwich Generation Decision
+
+Users must assess their sandwich generation status:
+
+||| Decision Point | Options | Impact |
+|||----------------|---------|--------|
+||| **Elderly Parent Support** | Yes, I support parents / No, parents independent | Affects "Needs" category allocation |
+||| **Children/Young Siblings Support** | Yes, I support children/siblings / No, independent | Adds to fixed cost burden |
+||| **Extended Family Living** | Live with family / Support remotely | Housing and food costs vary |
+||| **Combined Support Load** | Single earner / Dual income | Determines feasible savings rate |
+
+### 2B.3 Indonesian Sandwich Generation Statistics
+
+||| Statistic | Value | Source |
+|||-----------|-------|--------|
+||| Population affected | ~71 million | BPS 2020 |
+||| Households with elderly members | 33.16% (2023) vs 27.88% (2019) | BPS |
+||| Sandwich generation with extended family | 8.4 million | Various surveys |
+||| Trend | Increasing, especially among Gen Z | ANTARA/BPS |
+
+### 2B.4 Adjusted Budget for Sandwich Generation
+
+Traditional budget rules may not apply. The app provides adjusted recommendations:
+
+||| Standard Rule | Sandwich Adjustment | Notes |
+|||---------------|---------------------|-------|
+||| 60/30/10 | May need 70/20/10 or custom | Higher fixed costs for family support |
+||| 50/30/20 | Consider 60/25/15 | Reduced savings rate acceptable temporarily |
+||| Emergency Fund | 3-9 months (vs 3-6) | More dependents = higher risk |
+||| Investments | Delay aggressive investing | Focus on debt payoff and family security |
+
+### 2B.5 Sandwich Generation Income Reality
+
+For sandwich generation members, income appears higher than true discretionary income:
+
+```
+Monthly Income: Rp 10,000,000
+├── Family Support (parents): Rp 1,500,000
+├── Children/Siblings Support: Rp 2,000,000
+├── Shared Housing (if applicable): Rp 1,000,000
+└── True Discretionary Income: Rp 5,500,000
+```
+
+**Application Behavior:**
+- Auto-detect potential sandwich generation via questions
+- Adjust budget rule calculations based on support burden
+- Flag unrealistic savings targets for single-income sandwich households
+- Provide specialized guidance for managing competing financial priorities
+
+### 2B.6 Sandwich Generation Guidance Flow
+
+```
+User answers "Yes" to supporting parents/family?
+        │
+        ├── YES ──► Enter estimated family support amount
+        │              │
+        │              ├── < 20% of income ──► Sustainable
+        │              │                            Continue with adjusted budget
+        │              │
+        │              └── > 20% of income ──► High burden
+        │                                       Review emergency fund priority
+        │                                       Consider government assistance programs
+        │                                       Delay aggressive investments
+        │
+        └── NO ──► Standard budget allocation applies
+```
+
+---
+
+## 2C. Decision Integration
+
+### 2C.1 Combined Decision Flow
+
+```
+Enter Income & Location
+        │
+        ▼
+Family Context Questions (NEW)
+├── Support elderly parents?
+├── Support children/siblings?
+├── Living with extended family?
+└── Have pinjol debt?
+        │
+        ▼
+Determine Sandwich Status
+├── Sandwich Generation: Yes/No
+├── Support Load: Low/Medium/High
+└── Pinjol Risk: None/Moderate/High
+        │
+        ▼
+Apply Adjusted Budget Rule
+├── Standard rule + family support deduction
+└── Pinjol intervention if needed
+        │
+        ▼
+Standard Wizard Flow (Steps 2-4)
+```
+
+---
+
 ## 3. Savings Guidance
 
 ### 3.1 Emergency Fund Recommendations

@@ -5,6 +5,8 @@ import { Calculator as CalculatorIcon } from 'lucide-react';
 import { DailyLifeBreakdown } from '@/components/DailyLifeBreakdown';
 import { SavingsBreakdown } from '@/components/SavingsBreakdown';
 import { InvestmentBreakdown } from '@/components/InvestmentBreakdown';
+import { PinjolDebtWarning } from './PinjolDebtWarning';
+import { SandwichGenerationNotice } from './SandwichGenerationNotice';
 import { formatCurrency } from '@/utils/formatters';
 import { ArrowRight, AlertTriangle, TrendingDown } from 'lucide-react';
 
@@ -14,6 +16,12 @@ interface Step4ResultsProps {
     expenses: number | null;
     selectedRuleId: string;
     riskProfile: 'conservative' | 'moderate' | 'aggressive';
+    hasElderlyParents: boolean;
+    hasOtherFamily: boolean;
+    hasPinjolDebt: boolean;
+    familySupportAmount: number | null;
+    pinjolDebtAmount: number | null;
+    pinjolDebtInterest: number | null;
   };
 }
 
@@ -34,10 +42,14 @@ function CutNeededWarning({ allocation, cutNeeded, comparison, expenses }: CutNe
             To reach your target savings of {formatCurrency(allocation.savings)}/mo
           </p>
           <p className="mt-1 text-sm text-amber-700">
-            Reduce spending by <span className="font-semibold">{formatCurrency(cutNeeded)}/month</span>
+            Reduce spending by{' '}
+            <span className="font-semibold">{formatCurrency(cutNeeded)}/month</span>
           </p>
           <div className="mt-3 flex items-center gap-2 text-xs text-amber-600">
-            <span>Target spending: {formatCurrency((comparison?.target.needs ?? 0) + (comparison?.target.wants ?? 0))}</span>
+            <span>
+              Target spending:{' '}
+              {formatCurrency((comparison?.target.needs ?? 0) + (comparison?.target.wants ?? 0))}
+            </span>
             <ArrowRight className="h-3 w-3" />
             <span>Current spending: {formatCurrency(expenses)}</span>
           </div>
@@ -86,12 +98,16 @@ function AllocationComparison({ comparison }: AllocationComparisonProps) {
         <div className="rounded-lg bg-muted/50 p-3 text-center">
           <p className="mb-1 text-xs text-muted-foreground">Needs</p>
           <p className="text-sm font-semibold">{formatCurrency(comparison?.target.needs ?? 0)}</p>
-          <p className="text-sm text-muted-foreground">{formatCurrency(comparison?.adjusted.needs ?? 0)}</p>
+          <p className="text-sm text-muted-foreground">
+            {formatCurrency(comparison?.adjusted.needs ?? 0)}
+          </p>
         </div>
         <div className="rounded-lg bg-muted/50 p-3 text-center">
           <p className="mb-1 text-xs text-muted-foreground">Wants</p>
           <p className="text-sm font-semibold">{formatCurrency(comparison?.target.wants ?? 0)}</p>
-          <p className="text-sm text-muted-foreground">{formatCurrency(comparison?.adjusted.wants ?? 0)}</p>
+          <p className="text-sm text-muted-foreground">
+            {formatCurrency(comparison?.adjusted.wants ?? 0)}
+          </p>
         </div>
       </div>
     </div>
@@ -102,7 +118,24 @@ export function Step4Results({ data }: Step4ResultsProps) {
   const results = useMemo(() => {
     if (!data.income || data.income <= 0) return null;
     const estimatedExpenses = data.expenses ?? data.income * 0.7 * 0.6;
-    return calculateResults(data.income, data.selectedRuleId, data.riskProfile, estimatedExpenses);
+
+    // Prepare family context for calculations
+    const familyContext = {
+      familySupportAmount: data.familySupportAmount,
+      hasPinjolDebt: data.hasPinjolDebt,
+      pinjolDebtAmount: data.pinjolDebtAmount,
+      pinjolMonthlyInterest: data.pinjolDebtInterest,
+      hasElderlyParents: data.hasElderlyParents,
+      hasOtherFamily: data.hasOtherFamily,
+    };
+
+    return calculateResults(
+      data.income,
+      data.selectedRuleId,
+      data.riskProfile,
+      estimatedExpenses,
+      familyContext
+    );
   }, [data]);
 
   const comparison = useMemo(() => {
@@ -146,9 +179,25 @@ export function Step4Results({ data }: Step4ResultsProps) {
         />
       )}
 
-      {!!showComparison && cutNeeded === 0 && (
-        <PerfectFitSuccess allocation={allocation} />
-      )}
+      {!!showComparison && cutNeeded === 0 && <PerfectFitSuccess allocation={allocation} />}
+
+      {data.hasPinjolDebt && data.pinjolDebtAmount && data.pinjolDebtInterest ? (
+        <PinjolDebtWarning
+          debtAmount={data.pinjolDebtAmount}
+          monthlyInterest={data.pinjolDebtInterest}
+        />
+      ) : null}
+
+      {(data.hasElderlyParents || data.hasOtherFamily) &&
+      data.familySupportAmount &&
+      data.familySupportAmount > 0 ? (
+        <SandwichGenerationNotice
+          income={data.income ?? 0}
+          familySupportAmount={data.familySupportAmount}
+          hasElderlyParents={data.hasElderlyParents}
+          hasOtherFamily={data.hasOtherFamily}
+        />
+      ) : null}
 
       <DailyLifeBreakdown amount={allocation.needs} percentage={needsPercent} />
 
@@ -161,9 +210,7 @@ export function Step4Results({ data }: Step4ResultsProps) {
         recommendations={investmentBreakdown.recommendations}
       />
 
-      {!!showComparison && !!comparison && (
-        <AllocationComparison comparison={comparison} />
-      )}
+      {!!showComparison && !!comparison && <AllocationComparison comparison={comparison} />}
     </div>
   );
 }

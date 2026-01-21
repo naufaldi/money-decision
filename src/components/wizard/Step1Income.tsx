@@ -7,6 +7,7 @@ import { formatCurrency } from '@/utils/formatters';
 import wageData from '@/data/salary/avg_wages_total_august_2025.json';
 import { Step1Guidance } from '@/components/guidance/Step1Guidance';
 import { FamilyContextQuestions } from '@/components/wizard/FamilyContextQuestions';
+import { FamilyContextAnswers } from '@/types/guidance';
 import { ChevronDown, ChevronUp, Wallet } from 'lucide-react';
 
 interface Step1IncomeProps {
@@ -14,21 +15,18 @@ interface Step1IncomeProps {
   province: string | null;
   onChange: (_value: number) => void;
   onProvinceChange: (_province: string) => void;
-}
-
-interface FamilyContextAnswers {
-  hasElderlyParents: boolean;
-  hasOtherFamily: boolean;
-  hasPinjolDebt: boolean;
-  familySupportAmount: number | null;
-  pinjolDebtAmount: number | null;
-  pinjolDebtInterest: number | null;
-  dependentsCount: number;
+  onFamilyContextChange?: (_answers: FamilyContextAnswers) => void;
 }
 
 const PROVINCES = wageData.map(item => item.province).sort();
 
-export function Step1Income({ value, province, onChange, onProvinceChange }: Step1IncomeProps) {
+export function Step1Income({
+  value,
+  province,
+  onChange,
+  onProvinceChange,
+  onFamilyContextChange,
+}: Step1IncomeProps) {
   const [displayValue, setDisplayValue] = useState(formatCurrency(value ?? 0));
   const [error, setError] = useState<string | null>(null);
   const [incomeType, setIncomeType] = useState<'fixed' | 'variable' | 'mixed'>('fixed');
@@ -76,9 +74,11 @@ export function Step1Income({ value, province, onChange, onProvinceChange }: Ste
     setFamilyContextAnswers(answers);
     setFamilyContextComplete(true);
     setShowFamilyContext(false);
+    onFamilyContextChange?.(answers);
   };
 
-  const hasFamilyContext = familyContextAnswers.hasElderlyParents ||
+  const hasFamilyContext =
+    familyContextAnswers.hasElderlyParents ||
     familyContextAnswers.hasOtherFamily ||
     familyContextAnswers.hasPinjolDebt;
 
@@ -86,7 +86,9 @@ export function Step1Income({ value, province, onChange, onProvinceChange }: Ste
     <Card className="wizard-card">
       <CardHeader>
         <CardTitle className="text-center">Enter Your Income</CardTitle>
-        <CardDescription className="text-center">Enter your monthly take-home income</CardDescription>
+        <CardDescription className="text-center">
+          Enter your monthly take-home income
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
@@ -96,12 +98,12 @@ export function Step1Income({ value, province, onChange, onProvinceChange }: Ste
           <Select
             id="province-select"
             value={province ?? ''}
-            onChange={(e) => onProvinceChange(e.target.value)}
+            onChange={e => onProvinceChange(e.target.value)}
             className="w-full"
             required
           >
             <option value="">Select a province</option>
-            {PROVINCES.map((p) => (
+            {PROVINCES.map(p => (
               <option key={p} value={p}>
                 {p}
               </option>
@@ -125,20 +127,20 @@ export function Step1Income({ value, province, onChange, onProvinceChange }: Ste
             placeholder="0"
             className="text-lg font-semibold"
           />
-          {error ? <p id="income-error" role="alert" className="mt-2 text-sm text-destructive">
+          {error ? (
+            <p id="income-error" role="alert" className="mt-2 text-sm text-destructive">
               {error}
-            </p> : null}
+            </p>
+          ) : null}
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium">
-            Income Type
-          </label>
+          <label className="mb-2 block text-sm font-medium">Income Type</label>
           <div className="grid grid-cols-3 gap-2">
             <button
               type="button"
               onClick={() => setIncomeType('fixed')}
-              className={`p-3 rounded-lg border text-center transition-all ${
+              className={`rounded-lg border p-3 text-center transition-all ${
                 incomeType === 'fixed'
                   ? 'border-primary bg-primary/5 text-primary'
                   : 'border-border hover:bg-muted'
@@ -149,7 +151,7 @@ export function Step1Income({ value, province, onChange, onProvinceChange }: Ste
             <button
               type="button"
               onClick={() => setIncomeType('variable')}
-              className={`p-3 rounded-lg border text-center transition-all ${
+              className={`rounded-lg border p-3 text-center transition-all ${
                 incomeType === 'variable'
                   ? 'border-primary bg-primary/5 text-primary'
                   : 'border-border hover:bg-muted'
@@ -160,7 +162,7 @@ export function Step1Income({ value, province, onChange, onProvinceChange }: Ste
             <button
               type="button"
               onClick={() => setIncomeType('mixed')}
-              className={`p-3 rounded-lg border text-center transition-all ${
+              className={`rounded-lg border p-3 text-center transition-all ${
                 incomeType === 'mixed'
                   ? 'border-primary bg-primary/5 text-primary'
                   : 'border-border hover:bg-muted'
@@ -171,7 +173,7 @@ export function Step1Income({ value, province, onChange, onProvinceChange }: Ste
           </div>
         </div>
 
-        {value && value > 0 && province && (
+        {value && value > 0 && province ? (
           <>
             <Step1Guidance
               income={value}
@@ -197,11 +199,11 @@ export function Step1Income({ value, province, onChange, onProvinceChange }: Ste
                 <div className="flex items-center gap-2">
                   <Wallet className="h-4 w-4" aria-hidden="true" />
                   <span className="font-medium">Family Financial Context</span>
-                  {hasFamilyContext && (
+                  {hasFamilyContext ? (
                     <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-green-100 px-1.5 text-xs font-medium text-green-700">
                       Set
                     </span>
-                  )}
+                  ) : null}
                 </div>
                 {showFamilyContext ? (
                   <ChevronUp className="h-4 w-4" aria-hidden="true" />
@@ -210,7 +212,7 @@ export function Step1Income({ value, province, onChange, onProvinceChange }: Ste
                 )}
               </button>
 
-              {showFamilyContext && (
+              {showFamilyContext ? (
                 <div className="mt-2">
                   {!familyContextComplete ? (
                     <FamilyContextQuestions
@@ -220,11 +222,16 @@ export function Step1Income({ value, province, onChange, onProvinceChange }: Ste
                   ) : (
                     <div className="rounded-lg border bg-green-50 p-4">
                       <p className="text-sm font-medium text-green-800">Family context saved</p>
-                      <p className="text-xs text-green-600 mt-1">
-                        {familyContextAnswers.hasElderlyParents && 'Supporting elderly parents'}
-                        {familyContextAnswers.hasElderlyParents && familyContextAnswers.hasOtherFamily && ', '}
-                        {familyContextAnswers.hasOtherFamily && 'Supporting younger siblings'}
-                        {familyContextAnswers.hasPinjolDebt && ', Has pinjol debt'}
+                      <p className="mt-1 text-xs text-green-600">
+                        {familyContextAnswers.hasElderlyParents
+                          ? 'Supporting elderly parents'
+                          : null}
+                        {familyContextAnswers.hasElderlyParents &&
+                        familyContextAnswers.hasOtherFamily
+                          ? ', '
+                          : null}
+                        {familyContextAnswers.hasOtherFamily ? 'Supporting younger siblings' : null}
+                        {familyContextAnswers.hasPinjolDebt ? ', Has pinjol debt' : null}
                       </p>
                       <Button
                         variant="outline"
@@ -240,10 +247,10 @@ export function Step1Income({ value, province, onChange, onProvinceChange }: Ste
                     </div>
                   )}
                 </div>
-              )}
+              ) : null}
             </div>
           </>
-        )}
+        ) : null}
       </CardContent>
     </Card>
   );

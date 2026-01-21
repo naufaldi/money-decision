@@ -34,15 +34,22 @@ export function Wizard() {
     income: searchParams.get('income') ? parseInt(searchParams.get('income')!, 10) : null,
     expenses: searchParams.get('expenses') ? parseInt(searchParams.get('expenses')!, 10) : null,
     selectedRuleId: searchParams.get('rule') ?? '60-30-10',
-    riskProfile: (searchParams.get('risk') as 'conservative' | 'moderate' | 'aggressive') ?? 'conservative',
+    riskProfile:
+      (searchParams.get('risk') as 'conservative' | 'moderate' | 'aggressive') ?? 'conservative',
     province: searchParams.get('province') ?? null,
     incomeType: (searchParams.get('incomeType') as 'fixed' | 'variable' | 'mixed') ?? 'fixed',
     hasElderlyParents: searchParams.get('elderlyParents') === 'true',
     hasOtherFamily: searchParams.get('youngerSiblings') === 'true',
     hasPinjolDebt: searchParams.get('pinjolDebt') === 'true',
-    familySupportAmount: searchParams.get('familySupport') ? parseInt(searchParams.get('familySupport')!, 10) : null,
-    pinjolDebtAmount: searchParams.get('pinjolAmount') ? parseInt(searchParams.get('pinjolAmount')!, 10) : null,
-    pinjolDebtInterest: searchParams.get('pinjolInterest') ? parseFloat(searchParams.get('pinjolInterest')!) : null,
+    familySupportAmount: searchParams.get('familySupport')
+      ? parseInt(searchParams.get('familySupport')!, 10)
+      : null,
+    pinjolDebtAmount: searchParams.get('pinjolAmount')
+      ? parseInt(searchParams.get('pinjolAmount')!, 10)
+      : null,
+    pinjolDebtInterest: searchParams.get('pinjolInterest')
+      ? parseFloat(searchParams.get('pinjolInterest')!)
+      : null,
   }));
 
   // Sync state changes to URL
@@ -67,7 +74,12 @@ export function Wizard() {
   const canProceed = useCallback(() => {
     switch (state.currentStep) {
       case 1:
-        return state.income !== null && state.income > 0 && state.province !== null && state.province !== '';
+        return (
+          state.income !== null &&
+          state.income > 0 &&
+          state.province !== null &&
+          state.province !== ''
+        );
       case 2:
         return true;
       case 3:
@@ -79,13 +91,13 @@ export function Wizard() {
 
   const handleNext = useCallback(() => {
     if (canProceed() && state.currentStep < 4) {
-      setState((s) => ({ ...s, currentStep: s.currentStep + 1 }));
+      setState(s => ({ ...s, currentStep: s.currentStep + 1 }));
     }
   }, [state.currentStep, canProceed]);
 
   const handleBack = useCallback(() => {
     if (state.currentStep > 1) {
-      setState((s) => ({ ...s, currentStep: s.currentStep - 1 }));
+      setState(s => ({ ...s, currentStep: s.currentStep - 1 }));
     }
   }, [state.currentStep]);
 
@@ -113,8 +125,19 @@ export function Wizard() {
           <Step1Income
             value={state.income}
             province={state.province}
-            onChange={(v) => setState((s) => ({ ...s, income: v }))}
-            onProvinceChange={(p) => setState((s) => ({ ...s, province: p }))}
+            onChange={v => setState(s => ({ ...s, income: v }))}
+            onProvinceChange={p => setState(s => ({ ...s, province: p }))}
+            onFamilyContextChange={answers =>
+              setState(s => ({
+                ...s,
+                hasElderlyParents: answers.hasElderlyParents,
+                hasOtherFamily: answers.hasOtherFamily,
+                hasPinjolDebt: answers.hasPinjolDebt,
+                familySupportAmount: answers.familySupportAmount,
+                pinjolDebtAmount: answers.pinjolDebtAmount,
+                pinjolDebtInterest: answers.pinjolDebtInterest,
+              }))
+            }
           />
         );
       case 2:
@@ -122,14 +145,14 @@ export function Wizard() {
           <Step2Expenses
             value={state.expenses}
             income={state.income ?? undefined}
-            onChange={(v) => setState((s) => ({ ...s, expenses: v }))}
+            onChange={v => setState(s => ({ ...s, expenses: v }))}
           />
         );
       case 3:
         return (
           <Step3Rule
             selected={state.selectedRuleId}
-            onChange={(v) => setState((s) => ({ ...s, selectedRuleId: v }))}
+            onChange={v => setState(s => ({ ...s, selectedRuleId: v }))}
             income={state.income ?? undefined}
             expenses={state.expenses ?? undefined}
             province={state.province}
@@ -152,7 +175,9 @@ export function Wizard() {
       </div>
       <StepIndicators current={state.currentStep} total={4} />
       {renderStep()}
-      {state.currentStep >= 2 && !!state.income && !!state.province && <SalaryInsights income={state.income} province={state.province} />}
+      {state.currentStep >= 2 && !!state.income && !!state.province && (
+        <SalaryInsights income={state.income} province={state.province} />
+      )}
       {state.currentStep < 4 && (
         <div className="mt-6 flex justify-between">
           <Button

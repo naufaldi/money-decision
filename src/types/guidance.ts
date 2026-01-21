@@ -46,7 +46,7 @@ export interface GuidanceAction {
   /** Optional icon for the button */
   icon?: 'arrow-right' | 'external-link' | 'calculator' | 'share';
   /** Whether this is a primary action */
-  variant?: 'primary' | 'outline | 'secondary'';
+  variant?: 'primary' | 'outline' | 'secondary';
 }
 
 /** Guidance categories for organization */
@@ -64,7 +64,7 @@ export type GuidanceCategory =
 /** Family context answers */
 export interface FamilyContextAnswers {
   hasElderlyParents: boolean;
-  hasYoungerSiblings: boolean;
+  hasOtherFamily: boolean; // Changed from hasYoungerSiblings for broader family support
   hasPinjolDebt: boolean;
   familySupportAmount: number | null;
   pinjolDebtAmount: number | null;

@@ -4,14 +4,103 @@ import {
   AllocationResult,
   SavingsBreakdown,
   InvestmentBreakdown,
-  CalculatorResult
+  CalculatorResult,
 } from '@/types';
 import {
   BUDGET_RULES,
   INVESTMENT_RECOMMENDATIONS,
   SAVINGS_BREAKDOWN,
-  EMERGENCY_FUND_MONTHS
+  EMERGENCY_FUND_MONTHS,
 } from '@/constants/rules';
+import { getPinjolRiskLevel } from './pinjolCalculator';
+
+/**
+ * Family context for adjusted calculations
+ */
+export interface FamilyContext {
+  familySupportAmount: number | null;
+  hasPinjolDebt: boolean;
+  pinjolDebtAmount: number | null;
+  pinjolMonthlyInterest: number | null;
+  hasElderlyParents: boolean;
+  hasOtherFamily: boolean;
+}
+
+/**
+ * Sandwich generation income adjustment result
+ */
+export interface SandwichAdjustment {
+  originalIncome: number;
+  familySupport: number;
+  adjustedIncome: number;
+  supportBurden: number; // Percentage
+  isSandwichGeneration: boolean;
+}
+
+/**
+ * Pinjol risk assessment result
+ */
+export interface PinjolRiskAssessment {
+  hasPinjolDebt: boolean;
+  riskLevel: 'none' | 'low' | 'moderate' | 'high' | 'critical';
+  recommendPayoffFirst: boolean;
+  message: string;
+}
+
+/**
+ * Adjust income for sandwich generation family support
+ */
+export function adjustIncomeForFamilySupport(
+  income: number,
+  familySupport: number | null,
+  hasElderlyParents: boolean,
+  hasOtherFamily: boolean
+): SandwichAdjustment {
+  const support = familySupport ?? 0;
+  const isSandwichGeneration = hasElderlyParents || hasOtherFamily;
+
+  return {
+    originalIncome: income,
+    familySupport: support,
+    adjustedIncome: Math.max(0, income - support),
+    supportBurden: income > 0 ? (support / income) * 100 : 0,
+    isSandwichGeneration,
+  };
+}
+
+/**
+ * Assess pinjol debt risk level
+ */
+export function assessPinjolRisk(
+  hasPinjolDebt: boolean,
+  monthlyInterest: number | null
+): PinjolRiskAssessment {
+  if (!hasPinjolDebt || !monthlyInterest) {
+    return {
+      hasPinjolDebt: false,
+      riskLevel: 'none',
+      recommendPayoffFirst: false,
+      message: '',
+    };
+  }
+
+  const riskData = getPinjolRiskLevel(monthlyInterest);
+  const critical = riskData.level === 'critical' || riskData.level === 'high';
+
+  return {
+    hasPinjolDebt: true,
+    riskLevel: riskData.level,
+    recommendPayoffFirst: critical,
+    message: riskData.message,
+  };
+}
+
+/**
+ * Calculate emergency fund months for sandwich generation
+ */
+export function getEmergencyFundMonthsTarget(isSandwichGeneration: boolean): number {
+  return isSandwichGeneration ? 9 : EMERGENCY_FUND_MONTHS;
+}
 
 /**
  * Calculate allocation based on income and budget rule
@@ -22,7 +111,7 @@ export function calculateAllocation(income: number, ruleId: string): AllocationR
   return {
     needs: income * rule.allocation.needs,
     savings: income * rule.allocation.savings,
-    wants: income * rule.allocation.wants
+    wants: income * rule.allocation.wants,
   };
 }
 
@@ -42,7 +131,7 @@ export function calculateSavingsBreakdown(
     emergencyFund,
     shortTermGoals,
     longTermGoals,
-    emergencyFundTarget
+    emergencyFundTarget,
   };
 }
 
@@ -55,32 +144,46 @@ export function calculateInvestmentBreakdown(
 ): InvestmentBreakdown {
   const recommendations = INVESTMENT_RECOMMENDATIONS[riskProfile].map(rec => ({
     ...rec,
-    amount: investmentAmount * rec.percentage
+    amount: investmentAmount * rec.percentage,
   }));
 
   return {
     recommendations,
-    totalInvestment: investmentAmount
+    totalInvestment: investmentAmount,
   };
 }
 
 /**
- * Calculate all results for the calculator
+ * Calculate all results for the calculator with family context
  */
 export function calculateResults(
   income: number,
   ruleId: string,
   riskProfile: RiskProfile,
-  monthlyExpenses: number
+  monthlyExpenses: number,
+  familyContext?: FamilyContext
 ): CalculatorResult {
-  const allocation = calculateAllocation(income, ruleId);
+  // Adjust income for sandwich generation if applicable
+  let effectiveIncome = income;
+  if (familyContext) {
+    const adjustment = adjustIncomeForFamilySupport(
+      income,
+      familyContext.familySupportAmount,
+      familyContext.hasElderlyParents,
+      familyContext.hasOtherFamily
+    );
+    effectiveIncome = adjustment.adjustedIncome;
+  }
+
+  // Calculate allocations based on adjusted income
+  const allocation = calculateAllocation(effectiveIncome, ruleId);
   const savingsBreakdown = calculateSavingsBreakdown(allocation.savings, monthlyExpenses);
   const investmentBreakdown = calculateInvestmentBreakdown(allocation.wants, riskProfile);
 
   return {
     allocation,
     savingsBreakdown,
-    investmentBreakdown
+    investmentBreakdown,
   };
 }
 
@@ -103,5 +206,5 @@ export function getNeedsPercentage(ruleId: string): number {
  */
 export function getEmergencyFundMonths(savingsAmount: number, monthlyExpenses: number): number {
   if (monthlyExpenses <= 0) return 0;
-  return Math.floor(savingsAmount * SAVINGS_BREAKDOWN.emergencyFund / monthlyExpenses);
+  return Math.floor((savingsAmount * SAVINGS_BREAKDOWN.emergencyFund) / monthlyExpenses);
 }
