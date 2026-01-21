@@ -16,6 +16,13 @@ interface WizardState {
   selectedRuleId: string;
   riskProfile: 'conservative' | 'moderate' | 'aggressive';
   province: string | null;
+  incomeType: 'fixed' | 'variable' | 'mixed';
+  hasElderlyParents: boolean;
+  hasOtherFamily: boolean;
+  hasPinjolDebt: boolean;
+  familySupportAmount: number | null;
+  pinjolDebtAmount: number | null;
+  pinjolDebtInterest: number | null;
 }
 
 export function Wizard() {
@@ -29,6 +36,13 @@ export function Wizard() {
     selectedRuleId: searchParams.get('rule') ?? '60-30-10',
     riskProfile: (searchParams.get('risk') as 'conservative' | 'moderate' | 'aggressive') ?? 'conservative',
     province: searchParams.get('province') ?? null,
+    incomeType: (searchParams.get('incomeType') as 'fixed' | 'variable' | 'mixed') ?? 'fixed',
+    hasElderlyParents: searchParams.get('elderlyParents') === 'true',
+    hasOtherFamily: searchParams.get('youngerSiblings') === 'true',
+    hasPinjolDebt: searchParams.get('pinjolDebt') === 'true',
+    familySupportAmount: searchParams.get('familySupport') ? parseInt(searchParams.get('familySupport')!, 10) : null,
+    pinjolDebtAmount: searchParams.get('pinjolAmount') ? parseInt(searchParams.get('pinjolAmount')!, 10) : null,
+    pinjolDebtInterest: searchParams.get('pinjolInterest') ? parseFloat(searchParams.get('pinjolInterest')!) : null,
   }));
 
   // Sync state changes to URL
@@ -40,6 +54,13 @@ export function Wizard() {
     params.rule = state.selectedRuleId;
     params.risk = state.riskProfile;
     if (state.province) params.province = state.province;
+    params.incomeType = state.incomeType;
+    params.elderlyParents = state.hasElderlyParents.toString();
+    params.youngerSiblings = state.hasOtherFamily.toString();
+    params.pinjolDebt = state.hasPinjolDebt.toString();
+    if (state.familySupportAmount) params.familySupport = state.familySupportAmount.toString();
+    if (state.pinjolDebtAmount) params.pinjolAmount = state.pinjolDebtAmount.toString();
+    if (state.pinjolDebtInterest) params.pinjolInterest = state.pinjolDebtInterest.toString();
     setSearchParams(params, { replace: true });
   }, [state, setSearchParams]);
 
