@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { calculateResults } from '@/utils/calculators';
 import { compareAllocations, getCutNeeded } from '@/utils/expenseRuleFit';
+import { calculatePayoffForecast, formatPayoffForecast } from '@/utils/pinjolCalculator';
 import { Calculator as CalculatorIcon } from 'lucide-react';
 import { DailyLifeBreakdown } from '@/components/DailyLifeBreakdown';
 import { SavingsBreakdown } from '@/components/SavingsBreakdown';
@@ -8,7 +9,8 @@ import { InvestmentBreakdown } from '@/components/InvestmentBreakdown';
 import { PinjolDebtWarning } from './PinjolDebtWarning';
 import { SandwichGenerationNotice } from './SandwichGenerationNotice';
 import { formatCurrency } from '@/utils/formatters';
-import { ArrowRight, AlertTriangle, TrendingDown } from 'lucide-react';
+import { ArrowRight, AlertTriangle, TrendingDown, Calendar, Clock, TrendingDown as TrendingDownIcon } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface Step4ResultsProps {
   data: {
@@ -22,6 +24,7 @@ interface Step4ResultsProps {
     familySupportAmount: number | null;
     pinjolDebtAmount: number | null;
     pinjolDebtInterest: number | null;
+    pinjolDebtPayment: number | null;
   };
 }
 
@@ -114,6 +117,148 @@ function AllocationComparison({ comparison }: AllocationComparisonProps) {
   );
 }
 
+interface PinjolPayoffAnalysisProps {
+  debtAmount: number;
+  interestRate: number;
+  monthlyPayment: number;
+}
+
+function PinjolPayoffAnalysis({ debtAmount, interestRate, monthlyPayment }: PinjolPayoffAnalysisProps) {
+  const forecast = useMemo(() => {
+    return calculatePayoffForecast(debtAmount, interestRate, monthlyPayment);
+  }, [debtAmount, interestRate, monthlyPayment]);
+
+  const formatted = useMemo(() => {
+    return formatPayoffForecast(forecast);
+  }, [forecast]);
+
+  const monthlyInterest = debtAmount * (interestRate / 100);
+
+  if (!forecast.isSustainable || forecast.willGrow) {
+    return (
+      <Card className="border-amber-200 bg-amber-50">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-amber-800 text-lg">
+            <AlertTriangle className="h-5 w-5" />
+            Pinjol Payoff Warning
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-amber-700">{formatted.warningText}</p>
+          <div className="rounded-lg bg-amber-100 p-4">
+            <div className="flex items-center gap-2 text-amber-800 mb-2">
+              <TrendingDownIcon className="h-4 w-4" />
+              <span className="font-medium">Monthly Interest:</span>
+            </div>
+            <p className="text-xl font-bold text-amber-900">
+              {new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0,
+              }).format(monthlyInterest)}
+            </p>
+          </div>
+          <div className="text-sm text-amber-700">
+            <strong>Recommendation:</strong> Increase your monthly payment to at least{' '}
+            {new Intl.NumberFormat('id-ID', {
+              style: 'currency',
+              currency: 'IDR',
+              minimumFractionDigits: 0,
+            }).format(monthlyInterest + 100000)}{' '}
+            to start paying down the principal.
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const totalPayment = forecast.totalPayment;
+  const totalInterest = forecast.totalInterest;
+  const principalPercent = ((totalPayment - totalInterest) / totalPayment) * 100;
+  const interestPercent = (totalInterest / totalPayment) * 100;
+
+  return (
+    <Card className="border-green-200 bg-green-50">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-green-800 text-lg">
+          <Calendar className="h-5 w-5" />
+          Pinjol Payoff Plan
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-lg bg-green-100 p-3">
+            <div className="flex items-center gap-2 text-green-700 mb-1">
+              <Clock className="h-4 w-4" />
+              <span className="text-xs font-medium">Debt-free in</span>
+            </div>
+            <p className="text-lg font-bold text-green-900">{formatted.durationText}</p>
+          </div>
+
+          <div className="rounded-lg bg-green-100 p-3">
+            <div className="flex items-center gap-2 text-green-700 mb-1">
+              <Calendar className="h-4 w-4" />
+              <span className="text-xs font-medium">Target date</span>
+            </div>
+            <p className="text-lg font-bold text-green-900">{formatted.debtFreeText}</p>
+          </div>
+
+          <div className="rounded-lg bg-red-100 p-3">
+            <div className="flex items-center gap-2 text-red-700 mb-1">
+              <TrendingDownIcon className="h-4 w-4" />
+              <span className="text-xs font-medium">Total interest</span>
+            </div>
+            <p className="text-lg font-bold text-red-900">{formatted.totalInterestText}</p>
+          </div>
+
+          <div className="rounded-lg bg-blue-100 p-3">
+            <div className="flex items-center gap-2 text-blue-700 mb-1">
+              <span className="text-xs font-medium">Total paid</span>
+            </div>
+            <p className="text-lg font-bold text-blue-900">{formatted.totalPaymentText}</p>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs">
+            <span className="text-green-700">
+              Principal:{' '}
+              {new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0,
+              }).format(debtAmount)}
+            </span>
+            <span className="text-red-700">Interest: {formatted.totalInterestText}</span>
+          </div>
+          <div className="h-3 rounded-full overflow-hidden flex bg-gray-200">
+            <div
+              className="bg-green-500 h-full"
+              style={{ width: `${principalPercent}%` }}
+              role="progressbar"
+              aria-valuenow={principalPercent}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            />
+            <div
+              className="bg-red-400 h-full"
+              style={{ width: `${interestPercent}%` }}
+              role="progressbar"
+              aria-valuenow={interestPercent}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            />
+          </div>
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>{principalPercent.toFixed(0)}% principal</span>
+            <span>{interestPercent.toFixed(0)}% interest</span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export function Step4Results({ data }: Step4ResultsProps) {
   const results = useMemo(() => {
     if (!data.income || data.income <= 0) return null;
@@ -185,6 +330,17 @@ export function Step4Results({ data }: Step4ResultsProps) {
         <PinjolDebtWarning
           debtAmount={data.pinjolDebtAmount}
           monthlyInterest={data.pinjolDebtInterest}
+        />
+      ) : null}
+
+      {data.hasPinjolDebt &&
+      data.pinjolDebtAmount &&
+      data.pinjolDebtInterest &&
+      data.pinjolDebtPayment ? (
+        <PinjolPayoffAnalysis
+          debtAmount={data.pinjolDebtAmount}
+          interestRate={data.pinjolDebtInterest}
+          monthlyPayment={data.pinjolDebtPayment}
         />
       ) : null}
 

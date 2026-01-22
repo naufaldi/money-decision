@@ -1,5 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useCallback, useEffect } from 'react';
 import { StepIndicators } from './StepIndicators';
 import { Step1Income } from './Step1Income';
 import { Step2Expenses } from './Step2Expenses';
@@ -8,98 +7,22 @@ import { Step4Results } from './Step4Results';
 import { SalaryInsights } from './SalaryInsights';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-
-interface WizardState {
-  currentStep: number;
-  income: number | null;
-  expenses: number | null;
-  selectedRuleId: string;
-  riskProfile: 'conservative' | 'moderate' | 'aggressive';
-  province: string | null;
-  incomeType: 'fixed' | 'variable' | 'mixed';
-  hasElderlyParents: boolean;
-  hasOtherFamily: boolean;
-  hasPinjolDebt: boolean;
-  familySupportAmount: number | null;
-  pinjolDebtAmount: number | null;
-  pinjolDebtInterest: number | null;
-}
+import { useWizardStep } from '@/hooks/useWizardState';
 
 export function Wizard() {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  // Initialize state from URL params
-  const [state, setState] = useState<WizardState>(() => ({
-    currentStep: parseInt(searchParams.get('step') ?? '1', 10),
-    income: searchParams.get('income') ? parseInt(searchParams.get('income')!, 10) : null,
-    expenses: searchParams.get('expenses') ? parseInt(searchParams.get('expenses')!, 10) : null,
-    selectedRuleId: searchParams.get('rule') ?? '60-30-10',
-    riskProfile:
-      (searchParams.get('risk') as 'conservative' | 'moderate' | 'aggressive') ?? 'conservative',
-    province: searchParams.get('province') ?? null,
-    incomeType: (searchParams.get('incomeType') as 'fixed' | 'variable' | 'mixed') ?? 'fixed',
-    hasElderlyParents: searchParams.get('elderlyParents') === 'true',
-    hasOtherFamily: searchParams.get('youngerSiblings') === 'true',
-    hasPinjolDebt: searchParams.get('pinjolDebt') === 'true',
-    familySupportAmount: searchParams.get('familySupport')
-      ? parseInt(searchParams.get('familySupport')!, 10)
-      : null,
-    pinjolDebtAmount: searchParams.get('pinjolAmount')
-      ? parseInt(searchParams.get('pinjolAmount')!, 10)
-      : null,
-    pinjolDebtInterest: searchParams.get('pinjolInterest')
-      ? parseFloat(searchParams.get('pinjolInterest')!)
-      : null,
-  }));
-
-  // Sync state changes to URL
-  useEffect(() => {
-    const params: Record<string, string> = {};
-    params.step = state.currentStep.toString();
-    if (state.income) params.income = state.income.toString();
-    if (state.expenses) params.expenses = state.expenses.toString();
-    params.rule = state.selectedRuleId;
-    params.risk = state.riskProfile;
-    if (state.province) params.province = state.province;
-    params.incomeType = state.incomeType;
-    params.elderlyParents = state.hasElderlyParents.toString();
-    params.youngerSiblings = state.hasOtherFamily.toString();
-    params.pinjolDebt = state.hasPinjolDebt.toString();
-    if (state.familySupportAmount) params.familySupport = state.familySupportAmount.toString();
-    if (state.pinjolDebtAmount) params.pinjolAmount = state.pinjolDebtAmount.toString();
-    if (state.pinjolDebtInterest) params.pinjolInterest = state.pinjolDebtInterest.toString();
-    setSearchParams(params, { replace: true });
-  }, [state, setSearchParams]);
-
-  const canProceed = useCallback(() => {
-    switch (state.currentStep) {
-      case 1:
-        return (
-          state.income !== null &&
-          state.income > 0 &&
-          state.province !== null &&
-          state.province !== ''
-        );
-      case 2:
-        return true;
-      case 3:
-        return !!state.selectedRuleId;
-      default:
-        return true;
-    }
-  }, [state]);
+  const { state, updateState, canProceed } = useWizardStep(1);
 
   const handleNext = useCallback(() => {
     if (canProceed() && state.currentStep < 4) {
-      setState(s => ({ ...s, currentStep: s.currentStep + 1 }));
+      updateState({ currentStep: state.currentStep + 1 });
     }
-  }, [state.currentStep, canProceed]);
+  }, [state.currentStep, canProceed, updateState]);
 
   const handleBack = useCallback(() => {
     if (state.currentStep > 1) {
-      setState(s => ({ ...s, currentStep: s.currentStep - 1 }));
+      updateState({ currentStep: state.currentStep - 1 });
     }
-  }, [state.currentStep]);
+  }, [state.currentStep, updateState]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -125,18 +48,17 @@ export function Wizard() {
           <Step1Income
             value={state.income}
             province={state.province}
-            onChange={v => setState(s => ({ ...s, income: v }))}
-            onProvinceChange={p => setState(s => ({ ...s, province: p }))}
+            onChange={v => updateState({ income: v })}
+            onProvinceChange={p => updateState({ province: p })}
             onFamilyContextChange={answers =>
-              setState(s => ({
-                ...s,
+              updateState({
                 hasElderlyParents: answers.hasElderlyParents,
                 hasOtherFamily: answers.hasOtherFamily,
                 hasPinjolDebt: answers.hasPinjolDebt,
                 familySupportAmount: answers.familySupportAmount,
                 pinjolDebtAmount: answers.pinjolDebtAmount,
                 pinjolDebtInterest: answers.pinjolDebtInterest,
-              }))
+              })
             }
           />
         );
@@ -145,14 +67,14 @@ export function Wizard() {
           <Step2Expenses
             value={state.expenses}
             income={state.income ?? undefined}
-            onChange={v => setState(s => ({ ...s, expenses: v }))}
+            onChange={v => updateState({ expenses: v })}
           />
         );
       case 3:
         return (
           <Step3Rule
             selected={state.selectedRuleId}
-            onChange={v => setState(s => ({ ...s, selectedRuleId: v }))}
+            onChange={v => updateState({ selectedRuleId: v })}
             income={state.income ?? undefined}
             expenses={state.expenses ?? undefined}
             province={state.province}

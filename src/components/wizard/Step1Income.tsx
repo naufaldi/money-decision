@@ -6,16 +6,12 @@ import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/utils/formatters';
 import wageData from '@/data/salary/avg_wages_total_august_2025.json';
 import { Step1Guidance } from '@/components/guidance/Step1Guidance';
-import { FamilyContextQuestions } from '@/components/wizard/FamilyContextQuestions';
-import { FamilyContextAnswers } from '@/types/guidance';
-import { ChevronDown, ChevronUp, Wallet } from 'lucide-react';
 
 interface Step1IncomeProps {
   value: number | null;
   province: string | null;
   onChange: (_value: number) => void;
   onProvinceChange: (_province: string) => void;
-  onFamilyContextChange?: (_answers: FamilyContextAnswers) => void;
 }
 
 const PROVINCES = wageData.map(item => item.province).sort();
@@ -25,22 +21,10 @@ export function Step1Income({
   province,
   onChange,
   onProvinceChange,
-  onFamilyContextChange,
 }: Step1IncomeProps) {
   const [displayValue, setDisplayValue] = useState(formatCurrency(value ?? 0));
   const [error, setError] = useState<string | null>(null);
   const [incomeType, setIncomeType] = useState<'fixed' | 'variable' | 'mixed'>('fixed');
-  const [showFamilyContext, setShowFamilyContext] = useState(false);
-  const [familyContextAnswers, setFamilyContextAnswers] = useState<FamilyContextAnswers>({
-    hasElderlyParents: false,
-    hasOtherFamily: false,
-    hasPinjolDebt: false,
-    familySupportAmount: null,
-    pinjolDebtAmount: null,
-    pinjolDebtInterest: null,
-    dependentsCount: 0,
-  });
-  const [familyContextComplete, setFamilyContextComplete] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -69,18 +53,6 @@ export function Step1Income({
       setDisplayValue(formatCurrency(numericValue));
     }
   };
-
-  const handleFamilyContextComplete = (answers: FamilyContextAnswers) => {
-    setFamilyContextAnswers(answers);
-    setFamilyContextComplete(true);
-    setShowFamilyContext(false);
-    onFamilyContextChange?.(answers);
-  };
-
-  const hasFamilyContext =
-    familyContextAnswers.hasElderlyParents ||
-    familyContextAnswers.hasOtherFamily ||
-    familyContextAnswers.hasPinjolDebt;
 
   return (
     <Card className="wizard-card">
@@ -174,82 +146,20 @@ export function Step1Income({
         </div>
 
         {value && value > 0 && province ? (
-          <>
-            <Step1Guidance
-              income={value}
-              incomeType={incomeType}
-              province={province}
-              hasElderlyParents={familyContextAnswers.hasElderlyParents}
-              hasOtherFamily={familyContextAnswers.hasOtherFamily}
-              hasPinjolDebt={familyContextAnswers.hasPinjolDebt}
-              familySupportAmount={familyContextAnswers.familySupportAmount}
-              pinjolDebtAmount={familyContextAnswers.pinjolDebtAmount}
-              pinjolDebtInterest={familyContextAnswers.pinjolDebtInterest}
-              pinjolCount={familyContextAnswers.hasPinjolDebt ? 1 : 0}
-              selectedRule="60-30-10"
-              riskProfile="moderate"
-            />
-
-            <div className="border-t pt-4">
-              <button
-                type="button"
-                onClick={() => setShowFamilyContext(!showFamilyContext)}
-                className="flex w-full items-center justify-between rounded-lg bg-muted/50 p-3 text-left transition-colors hover:bg-muted"
-              >
-                <div className="flex items-center gap-2">
-                  <Wallet className="h-4 w-4" aria-hidden="true" />
-                  <span className="font-medium">Family Financial Context</span>
-                  {hasFamilyContext ? (
-                    <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-green-100 px-1.5 text-xs font-medium text-green-700">
-                      Set
-                    </span>
-                  ) : null}
-                </div>
-                {showFamilyContext ? (
-                  <ChevronUp className="h-4 w-4" aria-hidden="true" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" aria-hidden="true" />
-                )}
-              </button>
-
-              {showFamilyContext ? (
-                <div className="mt-2">
-                  {!familyContextComplete ? (
-                    <FamilyContextQuestions
-                      onComplete={handleFamilyContextComplete}
-                      defaultAnswers={familyContextAnswers}
-                    />
-                  ) : (
-                    <div className="rounded-lg border bg-green-50 p-4">
-                      <p className="text-sm font-medium text-green-800">Family context saved</p>
-                      <p className="mt-1 text-xs text-green-600">
-                        {familyContextAnswers.hasElderlyParents
-                          ? 'Supporting elderly parents'
-                          : null}
-                        {familyContextAnswers.hasElderlyParents &&
-                        familyContextAnswers.hasOtherFamily
-                          ? ', '
-                          : null}
-                        {familyContextAnswers.hasOtherFamily ? 'Supporting younger siblings' : null}
-                        {familyContextAnswers.hasPinjolDebt ? ', Has pinjol debt' : null}
-                      </p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setFamilyContextComplete(false);
-                          setShowFamilyContext(true);
-                        }}
-                        className="mt-2"
-                      >
-                        Edit
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              ) : null}
-            </div>
-          </>
+          <Step1Guidance
+            income={value}
+            incomeType={incomeType}
+            province={province}
+            hasElderlyParents={false}
+            hasOtherFamily={false}
+            hasPinjolDebt={false}
+            familySupportAmount={null}
+            pinjolDebtAmount={null}
+            pinjolDebtInterest={null}
+            pinjolCount={0}
+            selectedRule="60-30-10"
+            riskProfile="moderate"
+          />
         ) : null}
       </CardContent>
     </Card>

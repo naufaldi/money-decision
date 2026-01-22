@@ -258,6 +258,127 @@ export function getPinjolRiskLevel(monthlyRate: number): {
   }
 }
 
+/**
+ * Calculate payoff forecast with debt-free date and sustainability check
+ */
+export interface PayoffForecast {
+  monthsToPayoff: number;
+  totalInterest: number;
+  totalPayment: number;
+  debtFreeDate: Date;
+  isSustainable: boolean;
+  willGrow: boolean;
+  monthlyInterest: number;
+}
+
+export function calculatePayoffForecast(
+  debtAmount: number,
+  monthlyInterestRate: number,
+  monthlyPayment: number
+): PayoffForecast {
+  const monthlyRate = monthlyInterestRate / 100;
+  const monthlyInterest = debtAmount * monthlyRate;
+
+  // Handle edge cases
+  if (monthlyPayment <= 0) {
+    return {
+      monthsToPayoff: Infinity,
+      totalInterest: 0,
+      totalPayment: 0,
+      debtFreeDate: new Date('2099-12-31'),
+      isSustainable: false,
+      willGrow: true,
+      monthlyInterest,
+    };
+  }
+
+  // Check if payment covers only interest or less
+  if (monthlyPayment <= monthlyInterest) {
+    return {
+      monthsToPayoff: Infinity,
+      totalInterest: Infinity,
+      totalPayment: Infinity,
+      debtFreeDate: new Date('2099-12-31'),
+      isSustainable: false,
+      willGrow: monthlyPayment < monthlyInterest,
+      monthlyInterest,
+    };
+  }
+
+  // Use iterative approach similar to calculatePinjolPayoff
+  let balance = debtAmount;
+  let totalInterest = 0;
+  let months = 0;
+
+  while (balance > 0 && months < 600) {
+    const interest = balance * monthlyRate;
+    totalInterest += interest;
+    const principalPayment = Math.max(0, monthlyPayment - interest);
+    balance -= principalPayment;
+    months++;
+
+    if (balance < 0) balance = 0;
+  }
+
+  const totalPayment = monthlyPayment * months;
+
+  // Calculate debt-free date
+  const debtFreeDate = new Date();
+  debtFreeDate.setMonth(debtFreeDate.getMonth() + months);
+
+  return {
+    monthsToPayoff: months,
+    totalInterest,
+    totalPayment,
+    debtFreeDate,
+    isSustainable: true,
+    willGrow: false,
+    monthlyInterest,
+  };
+}
+
+/**
+ * Format payoff forecast for display
+ */
+export function formatPayoffForecast(forecast: PayoffForecast): {
+  durationText: string;
+  debtFreeText: string;
+  totalInterestText: string;
+  totalPaymentText: string;
+  warningText: string | null;
+} {
+  const { monthsToPayoff, debtFreeDate, totalInterest, totalPayment, willGrow, isSustainable, monthlyInterest } = forecast;
+
+  if (!isSustainable || willGrow) {
+    return {
+      durationText: 'Never',
+      debtFreeText: 'Debt will grow',
+      totalInterestText: 'Increasing',
+      totalPaymentText: 'Increasing',
+      warningText: willGrow
+        ? 'Payment too low - debt will grow monthly'
+        : 'Payment covers only interest - debt never decreases',
+    };
+  }
+
+  const years = Math.floor(monthsToPayoff / 12);
+  const remainingMonths = monthsToPayoff % 12;
+  const durationText = years > 0
+    ? `${monthsToPayoff} months (${years} year${years > 1 ? 's' : ''}${remainingMonths > 0 ? `, ${remainingMonths} month${remainingMonths > 1 ? 's' : ''}` : ''})`
+    : `${monthsToPayoff} months`;
+
+  const options: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
+  const debtFreeText = debtFreeDate.toLocaleDateString('id-ID', options);
+
+  return {
+    durationText,
+    debtFreeText,
+    totalInterestText: formatIDR(totalInterest),
+    totalPaymentText: formatIDR(totalPayment),
+    warningText: null,
+  };
+}
+
 export default {
   calculatePinjolPayoff,
   compareConsolidationOptions,
@@ -269,4 +390,6 @@ export default {
   calculateDoublingTime,
   isDangerouslyHighInterest,
   getPinjolRiskLevel,
+  calculatePayoffForecast,
+  formatPayoffForecast,
 };

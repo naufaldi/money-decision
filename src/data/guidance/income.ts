@@ -1,4 +1,5 @@
 import { GuidanceNode } from '@/types/guidance';
+import wageData from '@/data/salary/avg_wages_total_august_2025.json';
 
 export const INCOME_GUIDANCE_NODES: GuidanceNode[] = [
   {
@@ -10,7 +11,15 @@ export const INCOME_GUIDANCE_NODES: GuidanceNode[] = [
     priority: 1,
     icon: 'warning',
     title: 'Income Below Minimum Wage',
-    content: `Your monthly income is below the Jakarta minimum wage (Rp ~5,000,000). This is challenging but manageable with careful planning.
+    content: (ctx) => {
+      const provinceName = ctx.province || 'Indonesia';
+      const provinceWageData = wageData.find(
+        item => item.province.toUpperCase() === provinceName.toUpperCase()
+      );
+      const averageWage = provinceWageData?.total_august_2025 || 3331012;
+      const formattedWage = new Intl.NumberFormat('id-ID').format(averageWage);
+
+      return `Your monthly income is below the ${provinceName} average wage (Rp ~${formattedWage}). This is challenging but manageable with careful planning.
 
 **Immediate priorities:**
 1. Track every expense - use the expense wizard
@@ -22,10 +31,11 @@ export const INCOME_GUIDANCE_NODES: GuidanceNode[] = [
 - Focus on essential expenses only
 - Look for side income opportunities
 
-**Realistic budget (adjust based on your location):**
+**Realistic budget (adjust based on ${provinceName}):**
 - Housing: Find the cheapest option (with family, kos-kosan)
 - Food: Rp 500,000-800,000/month
-- Transport: Public transport or walk`,
+- Transport: Public transport or walk`;
+    },
     category: 'income',
   },
   {
@@ -219,7 +229,17 @@ export const INCOME_GUIDANCE_NODES: GuidanceNode[] = [
     priority: 4,
     icon: 'info',
     title: 'Understanding Your Salary Position',
-    content: `Based on BPS data, the average formal employee in Indonesia earns Rp ${new Intl.NumberFormat('id-ID').format(3331012)}/month.
+    content: (ctx) => {
+      const nationalAvg = new Intl.NumberFormat('id-ID').format(3331012);
+      const provinceName = ctx.province || 'your area';
+      const provinceWageData = wageData.find(
+        item => item.province.toUpperCase() === (ctx.province || '').toUpperCase()
+      );
+      const provinceAvg = provinceWageData 
+        ? new Intl.NumberFormat('id-ID').format(provinceWageData.total_august_2025)
+        : null;
+
+      return `Based on BPS data, the average formal employee in Indonesia earns Rp ${nationalAvg}/month${provinceAvg ? `, while in ${provinceName} it's Rp ${provinceAvg}/month` : ''}.
 
 **What this means:**
 - Your income comparison gives context
@@ -231,7 +251,8 @@ export const INCOME_GUIDANCE_NODES: GuidanceNode[] = [
 - Progress relative to your own goals
 - Building sustainable habits
 
-**Remember:** Everyone's situation is different. Compare yourself to your past self, not others.`,
+**Remember:** Everyone's situation is different. Compare yourself to your past self, not others.`;
+    },
     category: 'income',
   },
 ];

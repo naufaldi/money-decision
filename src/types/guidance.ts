@@ -168,6 +168,17 @@ export interface PinjolCalculationResult {
   interestSavedWithConsolidation: number;
 }
 
+/** Payoff forecast result */
+export interface PayoffForecast {
+  monthsToPayoff: number;
+  totalInterest: number;
+  totalPayment: number;
+  debtFreeDate: Date;
+  isSustainable: boolean;
+  willGrow: boolean;
+  monthlyInterest: number;
+}
+
 /** Emergency fund calculation result */
 export interface EmergencyFundResult {
   monthlyExpenses: number;

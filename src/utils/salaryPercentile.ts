@@ -13,8 +13,9 @@
  * - We solve for σ from Gini, then calculate percentile
  */
 
-const NATIONAL_GINI = 0.381; // BPS Sep 2024
-const JAKARTA_GINI = 0.431; // DKI Jakarta Sep 2024
+import giniData from '@/data/salary/gini_ratio_march_2025.json';
+
+const NATIONAL_GINI = 0.375; // BPS March 2025 (Semester 1)
 
 /**
  * Convert Gini coefficient to lognormal standard deviation (σ)
@@ -88,13 +89,20 @@ function erf(x: number): number {
 
 /**
  * Get Gini coefficient for a province
- * Currently only DKI Jakarta has province-specific data
+ * Uses BPS March 2025 (Semester 1) data for all 38 provinces
  */
 export function getProvinceGini(province: string): number {
-  const provinceUpper = province.toUpperCase();
-  if (provinceUpper === 'DKI JAKARTA' || provinceUpper === 'JAKARTA') {
-    return JAKARTA_GINI;
+  const provinceNormalized = province.trim().toUpperCase();
+  const provinceData = giniData.find(
+    item => item.province.trim().toUpperCase() === provinceNormalized
+  );
+  
+  if (provinceData) {
+    return provinceData.gini_ratio_march_2025;
   }
+  
+  // Fallback to national Gini if province not found
+  console.warn(`Gini data not found for province: "${province}". Using national average.`);
   return NATIONAL_GINI;
 }
 

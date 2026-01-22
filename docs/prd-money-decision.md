@@ -177,6 +177,67 @@ User has pinjol debt?
 - **Financial辅导员**: Free consultations available
 - **Debt consolidation**: Formal banks offer lower interest rates (12-24% APR)
 
+### 2A.7 Pinjol Debt Payoff Forecasting
+
+#### 2A.7.1 Overview
+
+The app provides debt payoff forecasting to help users understand when they will become debt-free based on their payment capacity. This feature transforms abstract debt information into actionable timelines.
+
+#### 2A.7.2 Forecasting Calculations
+
+```
+Input Variables:
+- Principal (P): Total pinjol debt amount
+- Monthly Interest Rate (r): Annual rate / 12
+- Monthly Payment (M): User's payment amount
+
+Payoff Calculation (Iterative):
+1. Each month: Interest = Balance * r
+2. Principal Payment = M - Interest
+3. New Balance = Balance - Principal Payment
+4. Repeat until balance = 0 or M <= Interest
+
+Sustainability Check:
+- If M <= Interest: Debt will grow (unsustainable)
+- If M > Interest: Debt will decrease (sustainable)
+```
+
+#### 2A.7.3 Forecast Display Elements
+
+||| Element | Description |
+||---|---------|-------------|
+|| **Debt-free Timeline** | "18 months" or "1 year, 6 months" |
+|| **Target Date** | Month and year when debt is paid off |
+|| **Total Interest** | Sum of all interest paid over payoff period |
+|| **Total Paid** | Principal + Total Interest |
+|| **Principal/Interest Ratio** | Visual bar showing breakdown |
+|| **Warning Banner** | Shown when payment is insufficient |
+
+#### 2A.7.4 Warning Scenarios
+
+||| Scenario | Message | Action |
+||-----------|----------|---------|--------|
+|| Payment = 0 | "Enter payment amount" | Prompt input |
+|| Payment < Interest | "Payment too low - debt will grow monthly" | Increase payment recommendation |
+|| Payment = Interest | "Payment covers only interest - debt never decreases" | Increase payment recommendation |
+|| Payment > Interest | "Debt-free in X months" | Show forecast details |
+
+#### 2A.7.5 Example Forecast
+
+```
+User Input:
+- Debt Amount: Rp 10,000,000
+- Monthly Interest Rate: 5%
+- Monthly Payment: Rp 500,000
+
+Forecast Output:
+- Debt-free in: 24 months (2 years)
+- Target date: March 2028
+- Total interest: Rp 1,847,000
+- Total paid: Rp 11,847,000
+- Principal: 84% | Interest: 16%
+```
+
 ---
 
 ## 2B. Sandwich Generation Decision
@@ -691,93 +752,189 @@ All educational content includes:
 
 ## 10. User Flow
 
+### 10.1 User Stories
+
+**US-1: Enter Income and Province**
+
+- **As a** user starting the financial planning wizard
+- **I want to** enter my monthly income and select my province
+- **So that** I can receive personalized salary insights and location-based recommendations
+- **Priority:** High
+- **Acceptance Criteria:**
+  - AC-1.1: User can select from 38 Indonesian provinces in a dropdown
+  - AC-1.2: User can enter monthly income in Rupiah
+  - AC-1.3: User can select income type (fixed/variable/mixed)
+  - AC-1.4: Salary insights display after income and province are entered
+  - AC-1.5: Province-specific wage comparison shows correctly (not defaulting to Jakarta)
+  - AC-1.6: User cannot proceed without entering valid income and selecting a province
+
+**US-2: Enter Monthly Expenses**
+
+- **As a** user managing my budget
+- **I want to** optionally enter my total monthly expenses
+- **So that** I can see how my spending compares to recommended allocation rules
+- **Priority:** Medium
+- **Acceptance Criteria:**
+  - AC-2.1: Expense input is optional (user can skip)
+  - AC-2.2: If expenses entered, show spending ratio and cashflow
+  - AC-2.3: Warn user if expenses exceed income
+  - AC-2.4: Show budget rule impact based on expenses
+  - AC-2.5: User can proceed whether or not expenses are entered
+
+**US-3: Disclose Pinjol Debt**
+
+- **As a** user with potential debt concerns
+- **I want to** indicate whether I have pinjol (online loan) or high-interest debt
+- **So that** I can receive targeted guidance on debt management and payoff strategies
+- **Priority:** High
+- **Acceptance Criteria:**
+  - AC-3.1: User sees clear Yes/No question about pinjol debt
+  - AC-3.2: If Yes, user can enter total debt amount
+  - AC-3.3: If Yes, user can enter estimated monthly interest rate
+  - AC-3.4: If Yes, user can enter monthly payment amount
+  - AC-3.5: Pinjol warning/guidance displays when debt is indicated
+  - AC-3.6: Question is optional (user can select No and proceed)
+  - AC-3.7: Debt information is saved to state for later calculations
+
+**US-7: Enter Pinjol Monthly Payment**
+
+- **As a** user with pinjol debt
+- **I want to** enter my monthly payment amount for the debt
+- **So that** I can see how long it will take to become debt-free
+- **Priority:** High
+- **Acceptance Criteria:**
+  - AC-7.1: User can enter monthly payment amount in Rupiah
+  - AC-7.2: Input field displays formatted currency (e.g., Rp 500.000)
+  - AC-7.3: Payment amount is saved to wizard state
+  - AC-7.4: Payment persists when navigating back to edit
+  - AC-7.5: Real-time feedback shows if payment is insufficient
+
+**US-8: View Pinjol Debt Payoff Forecast**
+
+- **As a** user with pinjol debt
+- **I want to** see my debt payoff timeline with specific dates
+- **So that** I can plan my finances and understand the true cost of borrowing
+- **Priority:** High
+- **Acceptance Criteria:**
+  - AC-8.1: After entering payment, forecast displays months to payoff
+  - AC-8.2: Forecast shows estimated debt-free date (e.g., "September 2026")
+  - AC-8.3: Forecast displays total interest paid over payoff period
+  - AC-8.4: Warning displays if payment is too low (debt will grow)
+  - AC-8.5: Visual progress bar shows principal vs interest ratio
+  - AC-8.6: Payoff analysis appears in Results step
+
+**US-4: Indicate Sandwich Generation Status**
+
+- **As a** user potentially supporting family members
+- **I want to** indicate whether I support elderly parents or younger siblings
+- **So that** I can receive adjusted budget recommendations that account for family support obligations
+- **Priority:** High
+- **Acceptance Criteria:**
+  - AC-4.1: User can indicate support for elderly parents (Yes/No)
+  - AC-4.2: User can indicate support for younger siblings/relatives (Yes/No)
+  - AC-4.3: If Yes to either, user can enter monthly family support amount
+  - AC-4.4: Sandwich generation notice/guidance displays when support is indicated
+  - AC-4.5: Both questions are optional
+  - AC-4.6: Family support amount is factored into budget calculations
+
+**US-5: Select Budget Rule**
+
+- **As a** user ready to allocate my income
+- **I want to** select a budget allocation rule that fits my lifestyle
+- **So that** I can see recommended splits for daily life, savings, and investment
+- **Priority:** High
+- **Acceptance Criteria:**
+  - AC-5.1: User can choose from preset rules (60/30/10, 50/30/20, etc.)
+  - AC-5.2: User can create custom allocation percentages
+  - AC-5.3: Rule selection considers pinjol debt status
+  - AC-5.4: Rule selection considers sandwich generation status
+  - AC-5.5: User must select a rule to proceed
+
+**US-6: View Financial Plan Results**
+
+- **As a** user completing the wizard
+- **I want to** see a comprehensive breakdown of my financial allocation
+- **So that** I can understand how to split my income across needs, savings, and investments
+- **Priority:** High
+- **Acceptance Criteria:**
+  - AC-6.1: Results show daily life, savings, and investment amounts in Rupiah
+  - AC-6.2: Results account for pinjol debt if indicated
+  - AC-6.3: Results account for family support if indicated
+  - AC-6.4: Results include emergency fund targets and timelines
+  - AC-6.5: Results show recommended investment allocations by risk profile
+  - AC-6.6: User can navigate back to edit any previous step
+  - AC-6.7: User can save or share the plan
+
+### 10.2 6-Step Wizard Flow
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                        HOME PAGE                            │
 │                  "Money Decision Helper"                    │
-│                                                             │
 │   [Start Your Financial Plan] ──►                           │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                    STEP 1: INCOME & LOCATION                │
-│                                                             │
-│   Province: [Dropdown with 38 Indonesian provinces]         │
+│                 STEP 1: INCOME & LOCATION                   │
+│   Province: [Dropdown]                                      │
 │   Monthly Income: Rp [____________]                         │
-│   Annual Income:   Rp [____________]                        │
-│   [Next]                                                   │
+│   Income Type: [Fixed | Variable | Mixed]                  │
+│   [Next]                                                    │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
 │              SALARY INSIGHTS CARD                           │
-│                                                             │
-│   Your income is Top X% in Indonesia                        │
-│   Your income is Top Y% in [Province Name]                  │
-│   National average: Rp 3,331,012/month                      │
-│   [Province] average: Rp X,XXX,XXX/month                    │
-│   *Estimate based on BPS data                               │
+│   Your income is Top X% in [Province]                      │
+│   [Province] average: Rp X,XXX,XXX/month                   │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                 STEP 2: ALLOCATION RULE                     │
-│                                                             │
+│                  STEP 2: MONTHLY EXPENSES                   │
+│   Total Monthly Spending: Rp [____________] (Optional)      │
+│   [Previous]  [Next]                                        │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   STEP 3: PINJOL DEBT                       │
+│   Do you have pinjol or high-interest debt?                │
+│   ○ Yes, I have pinjol debt                                │
+│   ○ No pinjol debt                                         │
+│   [If Yes: Show debt amount, interest rate, payment]       │
+│   [Payoff forecast displays with payment amount]           │
+│   [Previous]  [Next]                                        │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│               STEP 4: SANDWICH GENERATION                   │
+│   Do you financially support family members?                │
+│   □ Support elderly parents                                │
+│   □ Support younger siblings/relatives                     │
+│   [If Yes: Show monthly support amount input]              │
+│   [Previous]  [Next]                                        │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                STEP 5: ALLOCATION RULE                      │
 │   Select Rule:                                              │
-│   ○ 60/30/10 (Recommended for beginners)                   │
+│   ○ 60/30/10 (Recommended)                                 │
 │   ○ 50/30/20 (Balanced)                                    │
-│   ○ 70/20/10 (Higher lifestyle)                            │
 │   ○ Custom                                                 │
-│                                                             │
-│   [Previous]  [Next]                                       │
+│   [Previous]  [Next]                                        │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                STEP 3: MONTHLY EXPENSES                     │
-│                                                             │
-│   Housing:           Rp [____________]                      │
-│   Utilities:         Rp [____________]                      │
-│   Food/Groceries:    Rp [____________]                      │
-│   Transportation:    Rp [____________]                      │
-│   Insurance:         Rp [____________]                      │
-│   Religious/Zakat:   Rp [____________]                      │
-│   Other:             Rp [____________]                      │
-│                                                             │
-│   Total Monthly: Rp [___________]                          │
-│                                                             │
-│   [Previous]  [Calculate]                                  │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    STEP 4: RESULTS                          │
-│                                                             │
-│   ┌─────────────────────────────────────────────────────┐   │
-│   │ DAILY LIFE (60%): Rp 6,000,000                      │   │
-│   │   - Fixed: Rp 3,000,000                             │   │
-│   │   - Variable: Rp 2,000,000                          │   │
-│   │   - Buffer: Rp 1,000,000                            │   │
-│   └─────────────────────────────────────────────────────┘   │
-│                                                             │
-│   ┌─────────────────────────────────────────────────────┐   │
-│   │ SAVINGS (30%): Rp 3,000,000                         │   │
-│   │   Emergency Fund Target: Rp 18,000,000              │   │
-│   │   Where to keep:                                    │   │
-│   │   - 50% HYSA (Rp 1,500,000)                        │   │
-│   │   - 50% Money Market (Rp 1,500,000)                │   │
-│   └─────────────────────────────────────────────────────┘   │
-│                                                             │
-│   ┌─────────────────────────────────────────────────────┐   │
-│   │ INVESTMENT (10%): Rp 1,000,000                      │   │
-│   │   Recommended:                                       │   │
-│   │   - 50% Reksadana Saham (Rp 500,000)                │   │
-│   │   - 30% Reksadana Pasar Uang (Rp 300,000)           │   │
-│   │   - 20% Reksadana Campuran (Rp 200,000)             │   │
-│   └─────────────────────────────────────────────────────┘   │
-│                                                             │
-│   [Save Plan]  [Share]  [Start Over]                       │
+│                    STEP 6: RESULTS                          │
+│   DAILY LIFE (60%): Rp 6,000,000                           │
+│   SAVINGS (30%): Rp 3,000,000                              │
+│   INVESTMENT (10%): Rp 1,000,000                           │
+│   [Previous]  [Save Plan]  [Share]                         │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -882,9 +1039,9 @@ All educational content includes:
 
 ### 17.1 Overview
 
-The Money Decision app transforms from a single-page calculator to a focused 4-step wizard. Each step presents one task at a time, with clear visual hierarchy and accessibility baked in.
+The Money Decision app transforms from a single-page calculator to a focused 6-step wizard. Each step presents one task at a time, with clear visual hierarchy and accessibility baked in. The wizard separates concerns into dedicated steps: income entry, expenses, pinjol debt disclosure, sandwich generation status, rule selection, and results.
 
-### 17.2 The 4-Step Flow
+### 17.2 The 6-Step Flow
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -1269,6 +1426,8 @@ Since only **mean wages** are available (not full wage distributions), a **logno
 
 || Version | Date | Author | Changes |
 ||---------|------|--------|---------|
+||| 1.6 | 2026-01-22 | - | Added pinjol debt payoff forecasting feature: Added monthly payment input to Step 3 Pinjol, Added US-7: Enter Pinjol Monthly Payment, Added US-8: View Pinjol Debt Payoff Forecast, Updated AC-3.4 to include payment input, Added Section 2A.7: Pinjol Debt Payoff Forecasting with calculations and examples, Updated Step 3 wizard flow diagram to show payment input and forecast display. |
+|| 1.5 | 2026-01-22 | - | Restructured wizard from 4 steps to 6 focused steps: separated pinjol debt and sandwich generation questions into dedicated steps (Steps 3-4). Added Section 10.1: User Stories (US-1 through US-6) documenting each step's purpose and acceptance criteria. Updated Section 10.2: New 6-step wizard flow diagram. Updated Section 17: Changed from 4-step to 6-step wizard UX. Fixed province-based salary insights to use selected province data instead of defaulting to Jakarta with string normalization. |
 || 1.4 | 2026-01-21 | - | Added Section 19: Salary Position Insights (province selection, BPS data, percentile calculations), Updated Section 5: Indonesian expense categories with Zakat/religious giving, Updated Section 4: Added SBN Ritel instruments and regulatory bodies, Updated Sections 10 & 17: User flow with province selection and salary insights display |
 || 1.3 | 2026-01-20 | - | Added Section 17: Wizard UX Enhancement (4-step focused wizard, accessibility WCAG 2.1 AA, keyboard navigation, card-based layout, slide animations) |
 || 1.2 | 2026-01-15 | - | Added Section 5: Detailed Expense Breakdown (guided wizard with 5 categories), Section 6: Debt Consideration (credit card debt at 20.74%), Section 7: Investment Profiles (Conservative/Moderate/Aggressive), Section 8: Educational Content (inline expanders + education section), Section 9: Updated Features & Requirements |

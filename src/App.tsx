@@ -1,13 +1,71 @@
-import { Wizard } from '@/components/wizard/Wizard'
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { IncomePage } from '@/components/wizard/pages/IncomePage';
+import { ExpensesPage } from '@/components/wizard/pages/ExpensesPage';
+import { PinjolPage } from '@/components/wizard/pages/PinjolPage';
+import { SandwichPage } from '@/components/wizard/pages/SandwichPage';
+import { RulePage } from '@/components/wizard/pages/RulePage';
+import { ResultsPage } from '@/components/wizard/pages/ResultsPage';
+import { WizardRouteGuard } from '@/components/wizard/WizardRouteGuard';
 
 function App() {
   return (
     <div className="min-h-screen bg-background">
       <main className="container mx-auto max-w-2xl px-4 py-8">
-        <Wizard />
+        <Routes>
+          <Route
+            path="/wizard/income"
+            element={
+              <WizardRouteGuard step={1}>
+                <IncomePage />
+              </WizardRouteGuard>
+            }
+          />
+          <Route
+            path="/wizard/expenses"
+            element={
+              <WizardRouteGuard step={2}>
+                <ExpensesPage />
+              </WizardRouteGuard>
+            }
+          />
+          <Route
+            path="/wizard/pinjol"
+            element={
+              <WizardRouteGuard step={3}>
+                <PinjolPage />
+              </WizardRouteGuard>
+            }
+          />
+          <Route
+            path="/wizard/sandwich"
+            element={
+              <WizardRouteGuard step={4}>
+                <SandwichPage />
+              </WizardRouteGuard>
+            }
+          />
+          <Route
+            path="/wizard/rule"
+            element={
+              <WizardRouteGuard step={5}>
+                <RulePage />
+              </WizardRouteGuard>
+            }
+          />
+          <Route
+            path="/wizard/results"
+            element={
+              <WizardRouteGuard step={6}>
+                <ResultsPage />
+              </WizardRouteGuard>
+            }
+          />
+          <Route path="/" element={<Navigate to="/wizard/income" replace />} />
+          <Route path="*" element={<Navigate to="/wizard/income" replace />} />
+        </Routes>
       </main>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

@@ -11,9 +11,20 @@ interface SalaryInsightsProps {
 
 const NATIONAL_MEAN_WAGE = 3331012; // From CSV "MEAN" row, Total/August 2025
 
+function normalizeProvince(province: string): string {
+  return province.trim().toUpperCase();
+}
+
 export function SalaryInsights({ income, province }: SalaryInsightsProps) {
   const provinceData = useMemo(() => {
-    return wageData.find(item => item.province === province);
+    const normalizedProvince = normalizeProvince(province);
+    const found = wageData.find(item => normalizeProvince(item.province) === normalizedProvince);
+    
+    if (!found) {
+      console.warn(`Province data not found for: "${province}". Normalized: "${normalizedProvince}"`);
+    }
+    
+    return found;
   }, [province]);
 
   const nationalPercentile = useMemo(() => {
@@ -22,12 +33,24 @@ export function SalaryInsights({ income, province }: SalaryInsightsProps) {
 
   const provincePercentile = useMemo(() => {
     if (!provinceData) return null;
-    const provinceGini = getProvinceGini(province);
+    const normalizedProvince = normalizeProvince(province);
+    const provinceGini = getProvinceGini(normalizedProvince);
     return calculatePercentile(income, provinceData.total_august_2025, provinceGini);
   }, [income, provinceData, province]);
 
   if (!provinceData) {
-    return null;
+    return (
+      <Card className="wizard-card mt-6">
+        <CardHeader>
+          <CardTitle className="text-center text-lg">Salary Position Unavailable</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground text-center">
+            We couldn't find wage data for "{province}". Please select a different province or continue with the wizard.
+          </p>
+        </CardContent>
+      </Card>
+    );
   }
 
   const nationalPosition = formatPercentile(nationalPercentile);
