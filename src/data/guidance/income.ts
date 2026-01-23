@@ -65,8 +65,12 @@ export const INCOME_GUIDANCE_NODES: GuidanceNode[] = [
     actions: [
       {
         label: 'See investment basics',
-        onClick: () => {
-          window.dispatchEvent(new CustomEvent('showInvestmentEducation'));
+        onClick: (ctx) => {
+          window.dispatchEvent(
+            new CustomEvent('showInvestmentEducation', {
+              detail: { monthlyIncome: ctx.income }
+            })
+          );
         },
         icon: 'arrow-right',
         variant: 'outline',

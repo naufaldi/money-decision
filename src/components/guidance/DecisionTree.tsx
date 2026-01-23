@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, ReactNode } from 'react';
 import {
   CheckCircle2,
   AlertTriangle,
@@ -207,7 +207,15 @@ export function DecisionTree({
                               key={index}
                               variant={action.variant === 'primary' ? 'default' : 'outline'}
                               size="sm"
-                              onClick={action.onClick}
+                              onClick={() => {
+                                if (action.onClick.length === 0) {
+                                  // No parameters, call directly
+                                  (action.onClick as () => void)();
+                                } else {
+                                  // Expects context parameter
+                                  (action.onClick as (ctx: GuidanceContext) => void)(context);
+                                }
+                              }}
                               className="gap-1.5"
                               aria-label={`Action: ${action.label}`}
                             >

@@ -10,12 +10,57 @@ import { InvestmentGrowthCalculator } from './InvestmentGrowthCalculator';
 
 type CalculatorMode = 'standard' | 'goal-based' | 'age-based';
 
-export function CompoundInterestCalculator() {
+interface CompoundInterestCalculatorProps {
+  monthlyIncome?: number | null;
+}
+
+function getRelevantScenarios(monthlyIncome?: number | null): typeof quickScenarios {
+  if (!monthlyIncome || monthlyIncome <= 0) {
+    // No income data, show all scenarios
+    return quickScenarios;
+  }
+  
+  // Income brackets
+  if (monthlyIncome < 5000000) {
+    // Entry-level: Show starter and moderate
+    return quickScenarios.filter(s => 
+      s.id === 'entry-level-starter' || s.id === 'moderate-saver'
+    );
+  } else if (monthlyIncome < 15000000) {
+    // Middle-class: Show moderate and aggressive
+    return quickScenarios.filter(s => 
+      s.id === 'moderate-saver' || s.id === 'aggressive-investor'
+    );
+  } else {
+    // Upper-middle: Show aggressive and conservative
+    return quickScenarios.filter(s => 
+      s.id === 'aggressive-investor' || s.id === 'conservative-builder'
+    );
+  }
+}
+
+export function CompoundInterestCalculator({ monthlyIncome }: CompoundInterestCalculatorProps) {
   const [mode, setMode] = useState<CalculatorMode>('standard');
+  
+  // Calculate personalized investment amounts
+  const personalizedAmounts = useMemo(() => {
+    if (!monthlyIncome || monthlyIncome <= 0) return null;
+    
+    const tenPercent = Math.round((monthlyIncome * 0.1) / 1000) * 1000; // Round to nearest 1K
+    const twentyPercent = Math.round((monthlyIncome * 0.2) / 1000) * 1000;
+    
+    return {
+      tenPercent: Math.max(tenPercent, 50000), // Minimum 50K
+      twentyPercent: Math.max(twentyPercent, 100000), // Minimum 100K
+      displayIncome: monthlyIncome
+    };
+  }, [monthlyIncome]);
   
   // Standard mode inputs
   const [initialInvestment, setInitialInvestment] = useState<number>(1000000);
-  const [monthlyContribution, setMonthlyContribution] = useState<number>(500000);
+  const [monthlyContribution, setMonthlyContribution] = useState<number>(
+    personalizedAmounts?.tenPercent ?? 500000
+  );
   const [returnRate, setReturnRate] = useState<number>(7);
   const [years, setYears] = useState<number>(10);
   
@@ -74,17 +119,75 @@ export function CompoundInterestCalculator() {
 
       {mode === 'standard' && (
         <>
+          {/* Income Context Banner */}
+          {personalizedAmounts && (
+            <Card className="border-indigo-200 bg-indigo-50">
+              <CardContent className="p-4">
+                <p className="text-sm font-medium text-indigo-900">
+                  Based on your {formatCurrency(personalizedAmounts.displayIncome)} income:
+                </p>
+                <div className="flex gap-4 mt-2 text-sm">
+                  <span className="text-indigo-700">
+                    10% = <strong>{formatCurrency(personalizedAmounts.tenPercent)}</strong>
+                  </span>
+                  <span className="text-indigo-700">|</span>
+                  <span className="text-indigo-700">
+                    20% = <strong>{formatCurrency(personalizedAmounts.twentyPercent)}</strong>
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Quick Scenarios */}
           <Card className="border-purple-200 bg-purple-50">
             <CardHeader>
               <CardTitle className="text-sm flex items-center gap-2">
                 <Sparkles className="h-4 w-4" />
-                Quick Scenarios
+                {personalizedAmounts ? 'Your Investment Scenarios' : 'Quick Scenarios'}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-2">
-                {quickScenarios.map(scenario => (
+                {personalizedAmounts && (
+                  <>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => {
+                        setInitialInvestment(0);
+                        setMonthlyContribution(personalizedAmounts.tenPercent);
+                        setReturnRate(10);
+                        setYears(10);
+                        setMode('standard');
+                      }}
+                      className="h-auto py-2 px-3 flex flex-col items-start"
+                    >
+                      <span className="text-xs font-bold">Your 10%</span>
+                      <span className="text-xs mt-0.5">
+                        {formatCurrency(personalizedAmounts.tenPercent)}/mo
+                      </span>
+                    </Button>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => {
+                        setInitialInvestment(0);
+                        setMonthlyContribution(personalizedAmounts.twentyPercent);
+                        setReturnRate(10);
+                        setYears(10);
+                        setMode('standard');
+                      }}
+                      className="h-auto py-2 px-3 flex flex-col items-start"
+                    >
+                      <span className="text-xs font-bold">Your 20%</span>
+                      <span className="text-xs mt-0.5">
+                        {formatCurrency(personalizedAmounts.twentyPercent)}/mo
+                      </span>
+                    </Button>
+                  </>
+                )}
+                {getRelevantScenarios(monthlyIncome).map(scenario => (
                   <Button
                     key={scenario.id}
                     variant="outline"
@@ -336,7 +439,7 @@ export function CompoundInterestCalculator() {
       )}
 
       {mode === 'age-based' && (
-        <InvestmentGrowthCalculator />
+        <InvestmentGrowthCalculator monthlyIncome={monthlyIncome} />
       )}
 
       {/* Educational Note */}

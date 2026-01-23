@@ -15,9 +15,17 @@ const RISK_PROFILE_RETURNS: Record<RiskProfile, number> = {
   aggressive: 15,
 };
 
-export function InvestmentGrowthCalculator() {
+interface InvestmentGrowthCalculatorProps {
+  monthlyIncome?: number | null;
+}
+
+export function InvestmentGrowthCalculator({ monthlyIncome }: InvestmentGrowthCalculatorProps) {
+  const personalizedDefault = monthlyIncome && monthlyIncome > 0
+    ? Math.round((monthlyIncome * 0.1) / 1000) * 1000
+    : 500000;
+  
   const [startAge, setStartAge] = useState<number>(25);
-  const [monthlyAmount, setMonthlyAmount] = useState<number>(500000);
+  const [monthlyAmount, setMonthlyAmount] = useState<number>(personalizedDefault);
   const [riskProfile, setRiskProfile] = useState<RiskProfile>('moderate');
   const [targetAge, setTargetAge] = useState<number>(55);
 

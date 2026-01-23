@@ -10,9 +10,10 @@ import { RiskProfileMiniQuiz } from './RiskProfileMiniQuiz';
 interface InvestmentEducationModalProps {
   isOpen: boolean;
   onClose: () => void;
+  monthlyIncome?: number | null;
 }
 
-export function InvestmentEducationModal({ isOpen, onClose }: InvestmentEducationModalProps) {
+export function InvestmentEducationModal({ isOpen, onClose, monthlyIncome }: InvestmentEducationModalProps) {
   const [activeTab, setActiveTab] = useState<string>('basics');
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -138,7 +139,7 @@ export function InvestmentEducationModal({ isOpen, onClose }: InvestmentEducatio
             </TabsContent>
 
             <TabsContent value="calculators" className="mt-0 focus:outline-none" tabIndex={-1}>
-              <CompoundInterestCalculator />
+              <CompoundInterestCalculator monthlyIncome={monthlyIncome} />
             </TabsContent>
 
             <TabsContent value="risk" className="mt-0 focus:outline-none" tabIndex={-1}>

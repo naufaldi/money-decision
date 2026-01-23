@@ -11,9 +11,12 @@ import { InvestmentEducationModal } from '@/components/investment-education/Inve
 
 function App() {
   const [isInvestmentModalOpen, setIsInvestmentModalOpen] = useState(false);
+  const [modalIncome, setModalIncome] = useState<number | null>(null);
 
   useEffect(() => {
-    const handleShowInvestmentEducation = () => {
+    const handleShowInvestmentEducation = (event: Event) => {
+      const customEvent = event as CustomEvent<{ monthlyIncome?: number | null }>;
+      setModalIncome(customEvent.detail?.monthlyIncome ?? null);
       setIsInvestmentModalOpen(true);
     };
     
@@ -79,7 +82,8 @@ function App() {
       </main>
       <InvestmentEducationModal 
         isOpen={isInvestmentModalOpen} 
-        onClose={() => setIsInvestmentModalOpen(false)} 
+        onClose={() => setIsInvestmentModalOpen(false)}
+        monthlyIncome={modalIncome}
       />
     </div>
   );

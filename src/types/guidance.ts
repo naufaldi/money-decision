@@ -41,8 +41,8 @@ export interface GuidanceNode {
 export interface GuidanceAction {
   /** Button label */
   label: string;
-  /** Action to perform when clicked */
-  onClick: () => void;
+  /** Action to perform when clicked - can accept context or no parameters */
+  onClick: ((context: GuidanceContext) => void) | (() => void);
   /** Optional icon for the button */
   icon?: 'arrow-right' | 'external-link' | 'calculator' | 'share';
   /** Whether this is a primary action */
