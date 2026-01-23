@@ -729,6 +729,7 @@ All educational content includes:
 || Savings Guidance | P0 | Shows where to keep savings by purpose |
 || Investment Options Info | P0 | Educational content on investment types |
 || Investment Profiles | P0 | Conservative/Moderate/Aggressive toggle |
+|| Investment Basics Modal | P0 | Interactive educational modal with calculators |
 || Debt Assessment | P0 | Credit card debt check and recommendations |
 || Rule Selection | P0 | Choose from presets or custom allocation |
 || Results Summary | P0 | Clear breakdown of amounts and categories |
@@ -1422,10 +1423,125 @@ Since only **mean wages** are available (not full wage distributions), a **logno
 
 ---
 
+## 20. Investment Basics Modal
+
+### 20.1 Overview
+
+The Investment Basics Modal is an interactive educational feature triggered by the "See investment basics" button in guidance cards for entry-level income users. It provides comprehensive investment education covering fundamentals and Indonesian-specific investment products with interactive calculators.
+
+**Current State:** The button dispatches a `showInvestmentEducation` CustomEvent with no listener - this is a dead feature that needs implementation.
+
+**Trigger:** Users with income between Rp 2,000,000 and Rp 5,000,000 (entry-level) see the "See investment basics" button in their guidance card after completing the income step.
+
+### 20.2 Modal Architecture
+
+#### Component Structure
+```
+src/components/investment-education/
+├── InvestmentEducationModal.tsx    # Main modal container
+├── InvestmentEducationContent.tsx  # Tab-based content wrapper
+├── InvestmentBasicsSection.tsx     # Fundamentals (what, why, how)
+├── IndonesianProductsSection.tsx   # Local investment products
+├── CompoundInterestCalculator.tsx  # Interactive calculator
+└── RiskProfileMiniQuiz.tsx         # Quick risk assessment
+```
+
+#### Tab Navigation
+| Tab | Content | Purpose |
+|-----|---------|---------|
+| Investing Basics | Fundamentals for beginners | Learn what, why, and how to invest |
+| Indonesian Products | Reksadana, SBN Ritel, etc. | Local investment options |
+| Calculators | Compound interest tool | Interactive projections |
+| My Risk Profile | 3-question quiz | Self-assessment |
+
+### 20.3 Content Specifications
+
+#### 20.3.1 Tab 1: Investing Basics
+
+**What is Investing?**
+- Definition: Putting money into assets that grow over time
+- Purpose: Beat inflation, build wealth, achieve financial freedom
+
+**Key Concepts:**
+| Concept | Description |
+|---------|-------------|
+| Compound Interest | "Eighth wonder of the world" - interest on interest |
+| Dollar Cost Averaging | Invest consistently regardless of market price |
+| Diversification | Don't put all eggs in one basket |
+| Risk vs Return | Higher potential returns = higher risk |
+
+**Getting Started Checklist:**
+1. Build emergency fund first (3-6 months expenses)
+2. Pay off high-interest debt (>10% APR)
+3. Start small - even Rp 100,000 matters
+4. Use tax-advantaged accounts first
+
+#### 20.3.2 Tab 2: Indonesian Products
+
+**Reksadana (Mutual Funds)**
+| Type | Risk | Return | Min. Investment |
+|------|------|--------|-----------------|
+| Pasar Uang | Very Low | 4-6% | Rp 100,000 |
+| Pendapatan Tetap | Low | 6-8% | Rp 100,000 |
+| Saham | High | 10-15%+ | Rp 100,000 |
+| Campuran | Medium | 8-12% | Rp 100,000 |
+
+**SBN Ritel (Government Bonds)**
+| Type | Risk | Return | Features |
+|------|------|--------|----------|
+| ORI | Very Low | 5-6% | Government-backed, tradable |
+| Sukuk Ritel | Very Low | 5-6% | Sharia-compliant |
+| SBR | Very Low | 5-6% | Short-term, fixed rate |
+
+**Other Options:**
+- Deposito: 3-5% APY, locked term
+- Crypto: Very high risk, only what you can lose
+- Stocks: Direct ownership, requires knowledge
+
+#### 20.3.3 Tab 3: Calculators
+
+**Compound Interest Calculator**
+```
+Inputs:
+- Monthly investment amount (Rp)
+- Annual return rate (%)
+- Investment period (years)
+
+Outputs:
+- Total contribution
+- Interest earned
+- Final value
+- Visual growth chart
+
+Formula: A = P(1 + r/n)^(nt)
+```
+
+**Visual Elements:**
+- Line chart showing growth over time
+- Breakdown: principal vs. interest earned
+- Year-by-year table
+
+#### 20.3.4 Tab 4: Risk Profile Quiz
+
+**3-Question Mini Quiz:**
+1. Investment experience level (beginner/intermediate/advanced)
+2. Time horizon (short/medium/long-term)
+3. Comfort with market fluctuations (low/medium/high)
+
+**Scoring Logic:**
+| Score Range | Profile | Suggested Return |
+|-------------|---------|------------------|
+| 0-3 | Conservative | 5% |
+| 4-6 | Moderate | 10% |
+| 7-9 | Aggressive | 15% |
+
+---
+
 ## 18. Revision History
 
 || Version | Date | Author | Changes |
 ||---------|------|--------|---------|
+||| 1.7 | 2026-01-23 | - | Added Investment Basics Modal feature: Added Section 20: Investment Basics Modal, Added user stories US-9 through US-13 for modal functionality, Added Section 21: User Stories for modal, Added Section 22: Event System documentation, Added Section 23: Implementation Tasks, Added Section 24: Success Metrics, Updated Section 9.1: Added Investment Basics Modal to core features
 ||| 1.6 | 2026-01-22 | - | Added pinjol debt payoff forecasting feature: Added monthly payment input to Step 3 Pinjol, Added US-7: Enter Pinjol Monthly Payment, Added US-8: View Pinjol Debt Payoff Forecast, Updated AC-3.4 to include payment input, Added Section 2A.7: Pinjol Debt Payoff Forecasting with calculations and examples, Updated Step 3 wizard flow diagram to show payment input and forecast display. |
 || 1.5 | 2026-01-22 | - | Restructured wizard from 4 steps to 6 focused steps: separated pinjol debt and sandwich generation questions into dedicated steps (Steps 3-4). Added Section 10.1: User Stories (US-1 through US-6) documenting each step's purpose and acceptance criteria. Updated Section 10.2: New 6-step wizard flow diagram. Updated Section 17: Changed from 4-step to 6-step wizard UX. Fixed province-based salary insights to use selected province data instead of defaulting to Jakarta with string normalization. |
 || 1.4 | 2026-01-21 | - | Added Section 19: Salary Position Insights (province selection, BPS data, percentile calculations), Updated Section 5: Indonesian expense categories with Zakat/religious giving, Updated Section 4: Added SBN Ritel instruments and regulatory bodies, Updated Sections 10 & 17: User flow with province selection and salary insights display |
@@ -1437,3 +1553,173 @@ Since only **mean wages** are available (not full wage distributions), a **logno
 ---
 
 *This PRD serves as the foundation for developing the Money Decision Web App. All team members should review and align on requirements before development begins.*
+
+---
+
+## 21. User Stories: Investment Basics Modal
+
+**US-9: Open Investment Basics Modal**
+
+- **As a** user with entry-level income (Rp 2-5 million)
+- **I want to** click the "See investment basics" button in my guidance card
+- **So that** I can learn about investing fundamentals and Indonesian investment products
+- **Priority:** High
+- **Acceptance Criteria:**
+  - AC-9.1: "See investment basics" button appears in guidance card for income Rp 2-5 million
+  - AC-9.2: Button is styled as outline variant with arrow-right icon
+  - AC-9.3: Clicking button opens modal with 4 tabs
+  - AC-9.4: Modal closes on X button, click outside, or Escape key
+  - AC-9.5: Modal is accessible (keyboard navigation, ARIA labels)
+
+**US-10: Learn Investment Basics**
+
+- **As a** beginner investor
+- **I want to** understand what investing is and why it matters
+- **So that** I can make informed decisions about my money
+- **Priority:** High
+- **Acceptance Criteria:**
+  - AC-10.1: Tab 1 shows "What is Investing?" section
+  - AC-10.2: Key concepts explained: compound interest, DCA, diversification, risk/return
+  - AC-10.3: "Getting Started Checklist" with 4 actionable steps
+  - AC-10.4: Content is written in beginner-friendly language
+  - AC-10.5: Includes disclaimer: "Not financial advice"
+
+**US-11: Explore Indonesian Investment Products**
+
+- **As a** Indonesian user
+- **I want to** learn about local investment options
+- **So that** I can choose products suitable for my context
+- **Priority:** High
+- **Acceptance Criteria:**
+  - AC-11.1: Tab 2 shows Indonesian investment products
+  - AC-11.2: Reksadana types listed with risk, return, and minimum investment
+  - AC-11.3: SBN Ritel (ORI, Sukuk, SBR) explained with features
+  - AC-11.4: Other options (deposito, crypto, stocks) listed with warnings
+  - AC-11.5: Products link to OJK for verification
+
+**US-12: Use Investment Calculator**
+
+- **As a** user wanting to see investment growth
+- **I want to** calculate compound interest on my potential investments
+- **So that** I can understand the power of long-term investing
+- **Priority:** Medium
+- **Acceptance Criteria:**
+  - AC-12.1: Tab 3 shows compound interest calculator
+  - AC-12.2: User can input monthly amount, return rate, and years
+  - AC-12.3: Calculator shows total contribution, interest earned, final value
+  - AC-12.4: Visual chart displays growth over time
+  - AC-12.5: Year-by-year breakdown table is shown
+  - AC-12.6: Calculator handles edge cases (negative numbers, empty inputs)
+
+**US-13: Assess Risk Profile**
+
+- **As a** user unsure of my investment style
+- **I want to** complete a quick risk assessment quiz
+- **So that** I can understand my investor profile
+- **Priority:** Medium
+- **Acceptance Criteria:**
+  - AC-13.1: Tab 4 shows 3-question mini quiz
+  - AC-13.2: Questions cover experience, time horizon, and risk comfort
+  - AC-13.3: Quiz calculates score and assigns profile (Conservative/Moderate/Aggressive)
+  - AC-13.4: Results show suggested return percentage for each profile
+  - AC-13.5: Quiz can be retaken with different answers
+
+---
+
+## 22. Event System
+
+### 22.1 Custom Events
+
+The Investment Basics Modal uses CustomEvents for loose coupling between guidance actions and modal display.
+
+|| Event Name | Trigger | Handler |
+||------------|---------|---------|
+|| showInvestmentEducation | "See investment basics" button click in guidance card | Opens InvestmentEducationModal |
+|| showAdvancedInvesting | "Explore advanced investing" button click | Opens advanced investing modal (future) |
+|| showTaxGuide | "Freelancer tax guide" button click | Opens tax guide modal (future) |
+
+### 22.2 Event Listener Registration
+
+Event listeners should be registered at the application root level:
+
+```typescript
+// In App.tsx or main layout component
+useEffect(() => {
+  const handleShowInvestmentEducation = () => {
+    setIsInvestmentModalOpen(true);
+  };
+  
+  window.addEventListener('showInvestmentEducation', handleShowInvestmentEducation);
+  return () => window.removeEventListener('showInvestmentEducation', handleShowInvestmentEducation);
+}, []);
+```
+
+### 22.3 Event Dispatch
+
+Guidance actions dispatch events from src/data/guidance/income.ts:
+
+```typescript
+actions: [
+  {
+    label: 'See investment basics',
+    onClick: () => {
+      window.dispatchEvent(new CustomEvent('showInvestmentEducation'));
+    },
+    icon: 'arrow-right',
+    variant: 'outline',
+  },
+],
+```
+
+---
+
+## 23. Implementation Tasks
+
+### 23.1 Phase 1: MVP
+
+| Task | Component | Priority |
+|------|-----------|----------|
+| Create InvestmentEducationModal | Modal container with 4 tabs | P0 |
+| Implement InvestmentBasicsSection | Tab 1 content | P0 |
+| Implement IndonesianProductsSection | Tab 2 content | P0 |
+| Build CompoundInterestCalculator | Tab 3 calculator | P0 |
+| Add event listener for showInvestmentEducation | Event handling | P0 |
+| Add unit tests for calculators | Testing | P1 |
+| WCAG 2.1 AA accessibility audit | Accessibility | P1 |
+
+### 23.2 Phase 2: Future Enhancements
+
+| Task | Component | Description |
+|------|-----------|-------------|
+| RiskProfileMiniQuiz | Tab 4 | 3-question risk assessment quiz |
+| InvestmentGrowthCalculator | Tab 3 | Year-by-year growth projections |
+| Product comparison tool | Tab 2 | Side-by-side product comparison |
+| Video explanations | All tabs | Embedded educational videos |
+| Save/bookmark favorites | All tabs | Save products for later reference |
+
+---
+
+## 24. Success Metrics
+
+### 24.1 Engagement Metrics
+
+|| Metric | Target | Measurement |
+||--------|--------|-------------|
+|| Modal open rate | 60%+ of eligible users click button | Analytics: button click / guidance view |
+|| Time in modal | 2+ minutes average | Analytics: time on page |
+|| Calculator usage | 30%+ of modal visitors | Analytics: calculator interaction |
+|| Quiz completion | 50%+ of modal visitors | Analytics: quiz submit |
+
+### 24.2 User Feedback
+
+- In-app feedback survey after modal close (NPS question)
+- Support tickets related to investment education
+- User interviews with entry-level income users
+
+### 24.3 Technical Metrics
+
+- Page load time: < 2 seconds
+- No accessibility violations (WCAG 2.1 AA)
+- Calculator accuracy: 100% (unit tests)
+- Event listener registration: verified in integration tests
+

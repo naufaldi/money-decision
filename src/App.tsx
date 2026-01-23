@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { IncomePage } from '@/components/wizard/pages/IncomePage';
 import { ExpensesPage } from '@/components/wizard/pages/ExpensesPage';
@@ -6,8 +7,20 @@ import { SandwichPage } from '@/components/wizard/pages/SandwichPage';
 import { RulePage } from '@/components/wizard/pages/RulePage';
 import { ResultsPage } from '@/components/wizard/pages/ResultsPage';
 import { WizardRouteGuard } from '@/components/wizard/WizardRouteGuard';
+import { InvestmentEducationModal } from '@/components/investment-education/InvestmentEducationModal';
 
 function App() {
+  const [isInvestmentModalOpen, setIsInvestmentModalOpen] = useState(false);
+
+  useEffect(() => {
+    const handleShowInvestmentEducation = () => {
+      setIsInvestmentModalOpen(true);
+    };
+    
+    window.addEventListener('showInvestmentEducation', handleShowInvestmentEducation);
+    return () => window.removeEventListener('showInvestmentEducation', handleShowInvestmentEducation);
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <main className="container mx-auto max-w-2xl px-4 py-8">
@@ -64,6 +77,10 @@ function App() {
           <Route path="*" element={<Navigate to="/wizard/income" replace />} />
         </Routes>
       </main>
+      <InvestmentEducationModal 
+        isOpen={isInvestmentModalOpen} 
+        onClose={() => setIsInvestmentModalOpen(false)} 
+      />
     </div>
   );
 }
