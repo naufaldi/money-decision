@@ -62,7 +62,7 @@ export function adjustIncomeForFamilySupport(
   return {
     originalIncome: income,
     familySupport: support,
-    adjustedIncome: Math.max(0, income - support),
+    adjustedIncome: income - support,
     supportBurden: income > 0 ? (support / income) * 100 : 0,
     isSandwichGeneration,
   };

@@ -36,7 +36,7 @@ export function SandwichGenerationNotice({
       : 0;
 
   // Calculate final discretionary income after both deductions
-  const finalDiscretionaryIncome = Math.max(0, adjustment.adjustedIncome - pinjolPayment);
+  const finalDiscretionaryIncome = adjustment.adjustedIncome - pinjolPayment;
 
   // Show notice if there's sandwich generation OR Pinjol debt
   const shouldShow =
@@ -94,9 +94,39 @@ export function SandwichGenerationNotice({
           )}
           <div className="flex items-center justify-between border-t pt-2">
             <span className="text-sm font-semibold">Discretionary Income</span>
-            <span className="text-lg font-bold">{formatCurrency(finalDiscretionaryIncome)}</span>
+            <span className={`text-lg font-bold ${finalDiscretionaryIncome < 0 ? 'text-red-700' : ''}`}>
+              {formatCurrency(finalDiscretionaryIncome)}
+            </span>
           </div>
         </div>
+
+        {finalDiscretionaryIncome < 0 && (
+          <div className="rounded-lg border-2 border-red-600 bg-red-100 p-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-6 w-6 text-red-700" />
+              <div>
+                <p className="font-bold text-red-900 mb-2">
+                  🚨 Critical: Income Deficit
+                </p>
+                <p className="text-sm text-red-800 mb-3">
+                  Your monthly expenses exceed your income by{' '}
+                  <strong>{formatCurrency(Math.abs(finalDiscretionaryIncome))}</strong>.
+                  This is unsustainable and requires immediate action.
+                </p>
+                <div className="space-y-2 text-sm">
+                  <p className="font-semibold text-red-900">Immediate Actions:</p>
+                  <ul className="ml-4 space-y-1 list-disc">
+                    <li>Review family support - can siblings/relatives help share burden?</li>
+                    <li>Apply for government assistance (BPJS Kesehatan, PKH, Kartu Sembako)</li>
+                    <li>Contact OJK Hotline <strong>157</strong> for debt counseling</li>
+                    <li>Consider debt restructuring with formal banks</li>
+                    <li>Seek professional financial counselor through LSM or community services</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {adjustment.isSandwichGeneration && adjustment.familySupport > 0 ? <div className={`rounded-lg bg-${burdenColor}-100 p-3`}>
             <div className="flex items-start gap-2">
@@ -122,18 +152,27 @@ export function SandwichGenerationNotice({
 
         <div className="space-y-1 text-xs text-muted-foreground">
           <p className="font-medium">Budget Adjustments:</p>
-          <ul className="ml-2 list-inside list-disc space-y-0.5">
-            {adjustment.isSandwichGeneration && adjustment.familySupport > 0 ? <>
-                <li>Emergency fund target: 6-9 months (vs standard 3-6 months)</li>
-                <li>Savings rate: 10-20% acceptable (vs 20-30% standard)</li>
-              </> : null}
-            <li>
-              Calculations use discretionary income after{' '}
-              {adjustment.familySupport > 0 && 'family support'}
-              {adjustment.familySupport > 0 && pinjolPayment > 0 && ' and '}
-              {pinjolPayment > 0 && 'Pinjol debt payment'}
-            </li>
-          </ul>
+          {finalDiscretionaryIncome >= 0 ? (
+            <ul className="ml-2 list-inside list-disc space-y-0.5">
+              {adjustment.isSandwichGeneration && adjustment.familySupport > 0 && (
+                <>
+                  <li>Emergency fund target: 6-9 months (vs standard 3-6 months)</li>
+                  <li>Savings rate: 10-20% acceptable (vs 20-30% standard)</li>
+                </>
+              )}
+              <li>
+                Calculations use discretionary income after{' '}
+                {adjustment.familySupport > 0 && 'family support'}
+                {adjustment.familySupport > 0 && pinjolPayment > 0 && ' and '}
+                {pinjolPayment > 0 && 'Pinjol debt payment'}
+              </li>
+            </ul>
+          ) : (
+            <p className="text-red-700 font-medium">
+              ⚠️ Budget calculations cannot proceed with negative discretionary income.
+              Address income deficit first before setting financial goals.
+            </p>
+          )}
         </div>
       </CardContent>
     </Card>
