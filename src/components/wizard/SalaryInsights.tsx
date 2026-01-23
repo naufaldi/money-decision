@@ -45,7 +45,7 @@ export function SalaryInsights({ income, province }: SalaryInsightsProps) {
           <CardTitle className="text-center text-lg">Salary Position Unavailable</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground text-center">
+          <p className="text-center text-sm text-muted-foreground">
             We couldn't find wage data for "{province}". Please select a different province or continue with the wizard.
           </p>
         </CardContent>

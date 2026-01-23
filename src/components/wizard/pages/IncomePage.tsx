@@ -14,10 +14,16 @@ export function IncomePage() {
   const currentStep = 1;
 
   const handleContinue = useCallback(() => {
-    if (canProceed()) {
+    const canProceedNow =
+      state.income !== null &&
+      state.income > 0 &&
+      state.province !== null &&
+      state.province !== '';
+
+    if (canProceedNow) {
       void navigate(getNextStepPath(currentStep), { replace: true });
     }
-  }, [currentStep, canProceed, navigate]);
+  }, [currentStep, state.income, state.province, navigate]);
 
   const handleBack = useCallback(() => {
     void navigate(getPreviousStepPath(currentStep), { replace: true });
@@ -25,7 +31,13 @@ export function IncomePage() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Enter' && canProceed()) {
+      const canProceedNow =
+        state.income !== null &&
+        state.income > 0 &&
+        state.province !== null &&
+        state.province !== '';
+
+      if (e.key === 'Enter' && canProceedNow) {
         e.preventDefault();
         handleContinue();
       }
@@ -33,7 +45,7 @@ export function IncomePage() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [canProceed, handleContinue]);
+  }, [state.income, state.province, handleContinue]);
 
   return (
     <div role="main" aria-label="Money Decision Wizard - Step 1" className="wizard-container">

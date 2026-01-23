@@ -72,12 +72,12 @@ export function SandwichGenerationNotice({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <span className="text-sm font-medium">Gross Monthly Income</span>
             <span className="font-semibold">{formatCurrency(adjustment.originalIncome)}</span>
           </div>
           {adjustment.familySupport > 0 && (
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Family Support</span>
               <span className={`font-semibold text-${burdenColor}-700`}>
                 - {formatCurrency(adjustment.familySupport)}
@@ -85,23 +85,22 @@ export function SandwichGenerationNotice({
             </div>
           )}
           {pinjolPayment > 0 && (
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Pinjol Debt Payment</span>
               <span className={`font-semibold text-${burdenColor}-700`}>
                 - {formatCurrency(pinjolPayment)}
               </span>
             </div>
           )}
-          <div className="border-t pt-2 flex justify-between items-center">
+          <div className="flex items-center justify-between border-t pt-2">
             <span className="text-sm font-semibold">Discretionary Income</span>
             <span className="text-lg font-bold">{formatCurrency(finalDiscretionaryIncome)}</span>
           </div>
         </div>
 
-        {adjustment.isSandwichGeneration && adjustment.familySupport > 0 && (
-          <div className={`rounded-lg bg-${burdenColor}-100 p-3`}>
+        {adjustment.isSandwichGeneration && adjustment.familySupport > 0 ? <div className={`rounded-lg bg-${burdenColor}-100 p-3`}>
             <div className="flex items-start gap-2">
-              <AlertTriangle className={`h-4 w-4 mt-0.5 text-${burdenColor}-700`} />
+              <AlertTriangle className={`mt-0.5 h-4 w-4 text-${burdenColor}-700`} />
               <div>
                 <p className={`text-sm font-medium text-${burdenColor}-800`}>
                   Support Burden: {adjustment.supportBurden.toFixed(1)}%
@@ -119,18 +118,15 @@ export function SandwichGenerationNotice({
                 </p>
               </div>
             </div>
-          </div>
-        )}
+          </div> : null}
 
-        <div className="text-xs text-muted-foreground space-y-1">
+        <div className="space-y-1 text-xs text-muted-foreground">
           <p className="font-medium">Budget Adjustments:</p>
-          <ul className="list-disc list-inside space-y-0.5 ml-2">
-            {adjustment.isSandwichGeneration && adjustment.familySupport > 0 && (
-              <>
+          <ul className="ml-2 list-inside list-disc space-y-0.5">
+            {adjustment.isSandwichGeneration && adjustment.familySupport > 0 ? <>
                 <li>Emergency fund target: 6-9 months (vs standard 3-6 months)</li>
                 <li>Savings rate: 10-20% acceptable (vs 20-30% standard)</li>
-              </>
-            )}
+              </> : null}
             <li>
               Calculations use discretionary income after{' '}
               {adjustment.familySupport > 0 && 'family support'}

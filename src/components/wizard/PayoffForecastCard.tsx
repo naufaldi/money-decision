@@ -26,7 +26,7 @@ export function PayoffForecastCard({
     return (
       <Card className="border-amber-200 bg-amber-50">
         <CardHeader className="pb-2">
-          <CardTitle className="flex items-center gap-2 text-amber-800 text-lg">
+          <CardTitle className="flex items-center gap-2 text-lg text-amber-800">
             <AlertCircle className="h-5 w-5" />
             Payment Too Low
           </CardTitle>
@@ -35,7 +35,7 @@ export function PayoffForecastCard({
           <p className="text-sm text-amber-700">{warningText}</p>
 
           <div className="rounded-lg bg-amber-100 p-4">
-            <div className="flex items-center gap-2 text-amber-800 mb-2">
+            <div className="mb-2 flex items-center gap-2 text-amber-800">
               <TrendingDown className="h-4 w-4" />
               <span className="font-medium">Monthly Interest:</span>
             </div>
@@ -46,7 +46,7 @@ export function PayoffForecastCard({
                 minimumFractionDigits: 0,
               }).format(monthlyInterest)}
             </p>
-            <p className="text-xs text-amber-600 mt-1">
+            <p className="mt-1 text-xs text-amber-600">
               Your payment is not enough to cover the interest, so your debt will grow each month.
             </p>
           </div>
@@ -66,7 +66,7 @@ export function PayoffForecastCard({
   return (
     <Card className="border-green-200 bg-green-50">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-green-800 text-lg">
+        <CardTitle className="flex items-center gap-2 text-lg text-green-800">
           <CheckCircle2 className="h-5 w-5" />
           Debt Payoff Forecast
         </CardTitle>
@@ -74,7 +74,7 @@ export function PayoffForecastCard({
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-lg bg-green-100 p-3">
-            <div className="flex items-center gap-2 text-green-700 mb-1">
+            <div className="mb-1 flex items-center gap-2 text-green-700">
               <Clock className="h-4 w-4" />
               <span className="text-xs font-medium">Debt-free in</span>
             </div>
@@ -82,7 +82,7 @@ export function PayoffForecastCard({
           </div>
 
           <div className="rounded-lg bg-green-100 p-3">
-            <div className="flex items-center gap-2 text-green-700 mb-1">
+            <div className="mb-1 flex items-center gap-2 text-green-700">
               <Calendar className="h-4 w-4" />
               <span className="text-xs font-medium">Target date</span>
             </div>
@@ -90,7 +90,7 @@ export function PayoffForecastCard({
           </div>
 
           <div className="rounded-lg bg-red-100 p-3">
-            <div className="flex items-center gap-2 text-red-700 mb-1">
+            <div className="mb-1 flex items-center gap-2 text-red-700">
               <TrendingDown className="h-4 w-4" />
               <span className="text-xs font-medium">Total interest</span>
             </div>
@@ -98,7 +98,7 @@ export function PayoffForecastCard({
           </div>
 
           <div className="rounded-lg bg-blue-100 p-3">
-            <div className="flex items-center gap-2 text-blue-700 mb-1">
+            <div className="mb-1 flex items-center gap-2 text-blue-700">
               <span className="text-xs font-medium">Total paid</span>
             </div>
             <p className="text-lg font-bold text-blue-900">{totalPaymentText}</p>
@@ -110,9 +110,9 @@ export function PayoffForecastCard({
             <span className="text-green-700">Principal: {new Intl.NumberFormat('id-ID').format(principal)}</span>
             <span className="text-red-700">Interest: {totalInterestText}</span>
           </div>
-          <div className="h-3 rounded-full overflow-hidden flex bg-gray-200">
+          <div className="flex h-3 overflow-hidden rounded-full bg-gray-200">
             <div
-              className="bg-green-500 h-full"
+              className="h-full bg-green-500"
               style={{ width: `${principalPercent}%` }}
               role="progressbar"
               aria-valuenow={principalPercent}
@@ -121,7 +121,7 @@ export function PayoffForecastCard({
               aria-label="Principal portion"
             />
             <div
-              className="bg-red-400 h-full"
+              className="h-full bg-red-400"
               style={{ width: `${interestPercent}%` }}
               role="progressbar"
               aria-valuenow={interestPercent}

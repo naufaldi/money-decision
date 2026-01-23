@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { calculateResults } from '@/utils/calculators';
 import { compareAllocations, getCutNeeded } from '@/utils/expenseRuleFit';
 import { calculatePayoffForecast, formatPayoffForecast } from '@/utils/pinjolCalculator';
@@ -9,8 +9,10 @@ import { InvestmentBreakdown } from '@/components/InvestmentBreakdown';
 import { PinjolDebtWarning } from './PinjolDebtWarning';
 import { SandwichGenerationNotice } from './SandwichGenerationNotice';
 import { formatCurrency } from '@/utils/formatters';
-import { ArrowRight, AlertTriangle, TrendingDown, Calendar, Clock, TrendingDown as TrendingDownIcon } from 'lucide-react';
+import { ArrowRight, AlertTriangle, TrendingDown, Calendar, Clock, TrendingDown as TrendingDownIcon, Download, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { exportToPDF } from '@/utils/pdfExport';
 
 interface Step4ResultsProps {
   data: {
@@ -26,6 +28,7 @@ interface Step4ResultsProps {
     pinjolDebtInterest: number | null;
     pinjolDebtPayment: number | null;
   };
+  clearState?: () => void;
 }
 
 interface CutNeededWarningProps {
@@ -138,7 +141,7 @@ function PinjolPayoffAnalysis({ debtAmount, interestRate, monthlyPayment }: Pinj
     return (
       <Card className="border-amber-200 bg-amber-50">
         <CardHeader className="pb-2">
-          <CardTitle className="flex items-center gap-2 text-amber-800 text-lg">
+          <CardTitle className="flex items-center gap-2 text-lg text-amber-800">
             <AlertTriangle className="h-5 w-5" />
             Pinjol Payoff Warning
           </CardTitle>
@@ -146,7 +149,7 @@ function PinjolPayoffAnalysis({ debtAmount, interestRate, monthlyPayment }: Pinj
         <CardContent className="space-y-4">
           <p className="text-sm text-amber-700">{formatted.warningText}</p>
           <div className="rounded-lg bg-amber-100 p-4">
-            <div className="flex items-center gap-2 text-amber-800 mb-2">
+            <div className="mb-2 flex items-center gap-2 text-amber-800">
               <TrendingDownIcon className="h-4 w-4" />
               <span className="font-medium">Monthly Interest:</span>
             </div>
@@ -180,7 +183,7 @@ function PinjolPayoffAnalysis({ debtAmount, interestRate, monthlyPayment }: Pinj
   return (
     <Card className="border-green-200 bg-green-50">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-green-800 text-lg">
+        <CardTitle className="flex items-center gap-2 text-lg text-green-800">
           <Calendar className="h-5 w-5" />
           Pinjol Payoff Plan
         </CardTitle>
@@ -188,7 +191,7 @@ function PinjolPayoffAnalysis({ debtAmount, interestRate, monthlyPayment }: Pinj
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-lg bg-green-100 p-3">
-            <div className="flex items-center gap-2 text-green-700 mb-1">
+            <div className="mb-1 flex items-center gap-2 text-green-700">
               <Clock className="h-4 w-4" />
               <span className="text-xs font-medium">Debt-free in</span>
             </div>
@@ -196,7 +199,7 @@ function PinjolPayoffAnalysis({ debtAmount, interestRate, monthlyPayment }: Pinj
           </div>
 
           <div className="rounded-lg bg-green-100 p-3">
-            <div className="flex items-center gap-2 text-green-700 mb-1">
+            <div className="mb-1 flex items-center gap-2 text-green-700">
               <Calendar className="h-4 w-4" />
               <span className="text-xs font-medium">Target date</span>
             </div>
@@ -204,7 +207,7 @@ function PinjolPayoffAnalysis({ debtAmount, interestRate, monthlyPayment }: Pinj
           </div>
 
           <div className="rounded-lg bg-red-100 p-3">
-            <div className="flex items-center gap-2 text-red-700 mb-1">
+            <div className="mb-1 flex items-center gap-2 text-red-700">
               <TrendingDownIcon className="h-4 w-4" />
               <span className="text-xs font-medium">Total interest</span>
             </div>
@@ -212,7 +215,7 @@ function PinjolPayoffAnalysis({ debtAmount, interestRate, monthlyPayment }: Pinj
           </div>
 
           <div className="rounded-lg bg-blue-100 p-3">
-            <div className="flex items-center gap-2 text-blue-700 mb-1">
+            <div className="mb-1 flex items-center gap-2 text-blue-700">
               <span className="text-xs font-medium">Total paid</span>
             </div>
             <p className="text-lg font-bold text-blue-900">{formatted.totalPaymentText}</p>
@@ -231,9 +234,9 @@ function PinjolPayoffAnalysis({ debtAmount, interestRate, monthlyPayment }: Pinj
             </span>
             <span className="text-red-700">Interest: {formatted.totalInterestText}</span>
           </div>
-          <div className="h-3 rounded-full overflow-hidden flex bg-gray-200">
+          <div className="flex h-3 overflow-hidden rounded-full bg-gray-200">
             <div
-              className="bg-green-500 h-full"
+              className="h-full bg-green-500"
               style={{ width: `${principalPercent}%` }}
               role="progressbar"
               aria-valuenow={principalPercent}
@@ -241,7 +244,7 @@ function PinjolPayoffAnalysis({ debtAmount, interestRate, monthlyPayment }: Pinj
               aria-valuemax={100}
             />
             <div
-              className="bg-red-400 h-full"
+              className="h-full bg-red-400"
               style={{ width: `${interestPercent}%` }}
               role="progressbar"
               aria-valuenow={interestPercent}
@@ -259,7 +262,7 @@ function PinjolPayoffAnalysis({ debtAmount, interestRate, monthlyPayment }: Pinj
   );
 }
 
-export function Step4Results({ data }: Step4ResultsProps) {
+export function Step4Results({ data, clearState }: Step4ResultsProps) {
   const results = useMemo(() => {
     if (!data.income || data.income <= 0) return null;
     const estimatedExpenses = data.expenses ?? data.income * 0.7 * 0.6;
@@ -305,14 +308,68 @@ export function Step4Results({ data }: Step4ResultsProps) {
   const hasEnteredExpenses = !!data.expenses && data.expenses > 0;
   const showComparison = hasEnteredExpenses && !!comparison;
 
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+
+  const handleExportPDF = async () => {
+    if (isExporting) return;
+
+    setIsExporting(true);
+    setExportError(null);
+
+    try {
+      await exportToPDF('step4-results-content', 'money-decision-results');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to export PDF. Please try again.';
+      console.error('Failed to export PDF:', error);
+      setExportError(errorMessage);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleClearAndRestart = () => {
+    if (clearState) {
+      clearState();
+    }
+    window.location.href = '/';
+  };
+
   return (
-    <div className="space-y-6">
+    <div id="step4-results-content" className="space-y-6">
       <div className="space-y-2 text-center">
         <h1 className="flex items-center justify-center gap-2 text-3xl font-bold">
           <CalculatorIcon className="h-8 w-8 text-primary" />
           Money Decision
         </h1>
         <p className="text-muted-foreground">Your personalized budget allocation</p>
+      </div>
+
+      <div className="space-y-3 border-b pb-4">
+        {exportError ? <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-red-800">Export Failed</p>
+                <p className="mt-1 text-xs text-red-700">{exportError}</p>
+              </div>
+            </div>
+          </div> : null}
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={handleExportPDF}
+            disabled={isExporting}
+            className="flex-1 gap-2"
+          >
+            <Download className={`h-4 w-4 ${isExporting ? 'animate-pulse' : ''}`} />
+            {isExporting ? 'Exporting...' : 'Export PDF'}
+          </Button>
+          <Button variant="outline" onClick={handleClearAndRestart} className="flex-1 gap-2">
+            <RefreshCw className="h-4 w-4" />
+            New Calculation
+          </Button>
+        </div>
       </div>
 
       {!!showComparison && cutNeeded > 0 && (

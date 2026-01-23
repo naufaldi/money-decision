@@ -149,7 +149,7 @@ export function FamilyContextQuestions({
           <Users className="h-5 w-5" aria-hidden="true" />
           Family Financial Context
         </CardTitle>
-        <p className="text-sm text-muted-foreground text-center">
+        <p className="text-center text-sm text-muted-foreground">
           Help us understand your financial situation better. These questions are optional but will provide personalized guidance.
         </p>
       </CardHeader>
@@ -160,7 +160,7 @@ export function FamilyContextQuestions({
               <span>Question {currentQuestionIndex + 1} of {FAMILY_CONTEXT_QUESTIONS.length}</span>
               <span>{Math.round(progress)}%</span>
             </div>
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
+            <div className="h-2 overflow-hidden rounded-full bg-muted">
               <div
                 className="h-full bg-primary transition-all duration-300"
                 style={{ width: `${progress}%` }}
@@ -177,9 +177,7 @@ export function FamilyContextQuestions({
               <p className="font-medium" id={`question-${currentQuestion.id}`}>
                 {currentQuestion.question}
               </p>
-              {currentQuestion.description && (
-                <p className="text-sm text-muted-foreground">{currentQuestion.description}</p>
-              )}
+              {currentQuestion.description ? <p className="text-sm text-muted-foreground">{currentQuestion.description}</p> : null}
             </div>
 
             <div
@@ -194,7 +192,7 @@ export function FamilyContextQuestions({
                   <button
                     key={String(option.value)}
                     onClick={() => handleAnswer(option.value)}
-                    className={`p-3 rounded-lg border text-left transition-all ${
+                    className={`rounded-lg border p-3 text-left transition-all ${
                       isSelected
                         ? 'border-primary bg-primary/5 text-primary'
                         : 'border-border hover:bg-muted'
@@ -210,7 +208,7 @@ export function FamilyContextQuestions({
 
             {(currentQuestion.id === 'elderly-parents' || currentQuestion.id === 'other-family') &&
               getAnswerValue(currentQuestion.id) === true && (
-                <div className="space-y-2 p-3 rounded-lg bg-muted/50">
+                <div className="space-y-2 rounded-lg bg-muted/50 p-3">
                   <label
                     htmlFor="family-support-amount"
                     className="flex items-center gap-2 text-sm font-medium"
@@ -238,7 +236,7 @@ export function FamilyContextQuestions({
               )}
 
             {currentQuestion.id === 'pinjol-debt' && getAnswerValue('pinjol-debt') === true && (
-              <div className="space-y-3 p-3 rounded-lg bg-red-50 border border-red-200">
+              <div className="space-y-3 rounded-lg border border-red-200 bg-red-50 p-3">
                 <div className="flex items-center gap-2 text-red-700">
                   <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                   <span className="text-sm font-medium">Pinjol Details</span>
@@ -275,17 +273,38 @@ export function FamilyContextQuestions({
                     <Input
                       id="pinjol-interest"
                       type="text"
-                      placeholder="e.g., 5%"
+                      placeholder="e.g., 5% or 2,5%"
                       value={
                         answers.pinjolDebtInterest
                           ? `${answers.pinjolDebtInterest}%`
                           : ''
                       }
                       onChange={(e) => {
-                        const value = e.target.value.replace(/[^0-9.]/g, '');
+                        let value = e.target.value.replace(/[^0-9.,%]/g, '').replace(/%/g, '');
+                        
+                        const commaIndex = value.indexOf(',');
+                        const dotIndex = value.indexOf('.');
+                        
+                        if (commaIndex !== -1 && dotIndex !== -1) {
+                          if (commaIndex < dotIndex) {
+                            value = value.replace(/\./g, '');
+                          } else {
+                            value = value.replace(/,/g, '');
+                          }
+                        }
+                        
+                        const normalizedValue = value.replace(',', '.');
+                        
+                        let finalValue = normalizedValue;
+                        if (normalizedValue && normalizedValue.split('.').length > 2) {
+                          const parts = normalizedValue.split('.');
+                          finalValue = parts[0] + '.' + parts.slice(1).join('');
+                        }
+                        
+                        const numericValue = finalValue ? parseFloat(finalValue) : null;
                         setAnswers((prev) => ({
                           ...prev,
-                          pinjolDebtInterest: value ? parseFloat(value) : null,
+                          pinjolDebtInterest: numericValue && !isNaN(numericValue) ? numericValue : null,
                         }));
                       }}
                       className="border-red-200 focus:border-red-400"

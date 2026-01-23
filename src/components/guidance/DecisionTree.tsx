@@ -113,7 +113,7 @@ function renderContent(
         const [bold, rest] = line.split(':**');
         return (
           <p key={index} className="mt-2 font-semibold">
-            {bold.replace(/\*\*/g, '')}:{rest && <span className="font-normal"> {rest}</span>}
+            {bold.replace(/\*\*/g, '')}:{rest ? <span className="font-normal"> {rest}</span> : null}
           </p>
         );
       }
@@ -124,9 +124,9 @@ function renderContent(
           </p>
         );
       }
-      if (line.trim().match(/^\d+\./)) {
+      if (/^\d+\./.exec(line.trim())) {
         return (
-          <p key={index} className="mt-1 ml-4">
+          <p key={index} className="ml-4 mt-1">
             {line}
           </p>
         );
@@ -166,15 +166,13 @@ export function DecisionTree({
 
   return (
     <div className="decision-tree space-y-4" role="region" aria-label={title}>
-      {title && (
-        <div className="flex items-center gap-2">
+      {title ? <div className="flex items-center gap-2">
           <Lightbulb className="h-5 w-5 text-amber-500" aria-hidden="true" />
           <h3 className="text-lg font-semibold">{title}</h3>
-        </div>
-      )}
+        </div> : null}
 
       {displayNodes.length === 0 ? (
-        <p className="text-muted-foreground text-sm">{emptyMessage}</p>
+        <p className="text-sm text-muted-foreground">{emptyMessage}</p>
       ) : (
         <div className="space-y-3">
           {displayNodes.map((node) => {
@@ -190,23 +188,20 @@ export function DecisionTree({
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
                     <Icon
-                      className={`h-5 w-5 mt-0.5 flex-shrink-0 ${iconColor}`}
+                      className={`mt-0.5 h-5 w-5 flex-shrink-0 ${iconColor}`}
                       aria-hidden="true"
                     />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h4 className="font-medium text-sm">{node.title}</h4>
-                        {node.category && showCategories && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-white/60 text-gray-700">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h4 className="text-sm font-medium">{node.title}</h4>
+                        {node.category && showCategories ? <span className="inline-flex items-center rounded bg-white/60 px-2 py-0.5 text-xs font-medium text-gray-700">
                             {getCategoryLabel(node.category)}
-                          </span>
-                        )}
+                          </span> : null}
                       </div>
-                      <div className="mt-2 text-sm text-gray-700 space-y-1">
+                      <div className="mt-2 space-y-1 text-sm text-gray-700">
                         {renderContent(node.content, context)}
                       </div>
-                      {node.actions && node.actions.length > 0 && (
-                        <div className="mt-3 flex flex-wrap gap-2">
+                      {node.actions && node.actions.length > 0 ? <div className="mt-3 flex flex-wrap gap-2">
                           {node.actions.map((action, index) => (
                             <Button
                               key={index}
@@ -222,8 +217,7 @@ export function DecisionTree({
                               )}
                             </Button>
                           ))}
-                        </div>
-                      )}
+                        </div> : null}
                     </div>
                   </div>
                 </CardContent>
@@ -233,11 +227,9 @@ export function DecisionTree({
         </div>
       )}
 
-      {sortedNodes.length > (maxDisplay || Infinity) && maxDisplay && (
-        <p className="text-xs text-muted-foreground text-center">
+      {sortedNodes.length > (maxDisplay || Infinity) && maxDisplay ? <p className="text-center text-xs text-muted-foreground">
           +{sortedNodes.length - maxDisplay} more recommendations available
-        </p>
-      )}
+        </p> : null}
     </div>
   );
 }

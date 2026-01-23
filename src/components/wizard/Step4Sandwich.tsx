@@ -115,8 +115,7 @@ export function Step4Sandwich({
                 <span className="text-sm">No</span>
               </button>
             </div>
-            {hasElderlyParents && (
-              <div className="mt-3 space-y-3 rounded-lg border border-primary/20 bg-primary/5 p-4">
+            {hasElderlyParents ? <div className="mt-3 space-y-3 rounded-lg border border-primary/20 bg-primary/5 p-4">
                 <div className="flex items-center gap-2 text-primary">
                   <Heart className="h-4 w-4" aria-hidden="true" />
                   <span className="text-sm font-medium">Monthly Elderly Parents Support</span>
@@ -135,8 +134,7 @@ export function Step4Sandwich({
                     Monthly support for elderly parents (healthcare, daily expenses, etc.)
                   </p>
                 </div>
-              </div>
-            )}
+              </div> : null}
           </div>
 
           <div>
@@ -171,8 +169,7 @@ export function Step4Sandwich({
                 <span className="text-sm">No</span>
               </button>
             </div>
-            {hasOtherFamily && (
-              <div className="mt-3 space-y-3 rounded-lg border border-primary/20 bg-primary/5 p-4">
+            {hasOtherFamily ? <div className="mt-3 space-y-3 rounded-lg border border-primary/20 bg-primary/5 p-4">
                 <div className="flex items-center gap-2 text-primary">
                   <Heart className="h-4 w-4" aria-hidden="true" />
                   <span className="text-sm font-medium">Monthly Other Family Support</span>
@@ -191,13 +188,11 @@ export function Step4Sandwich({
                     Monthly support for siblings or other relatives (education, living costs, etc.)
                   </p>
                 </div>
-              </div>
-            )}
+              </div> : null}
           </div>
         </div>
 
-        {hasAnyFamilySupport && (
-          <div className="rounded-lg bg-muted/50 p-3">
+        {hasAnyFamilySupport ? <div className="rounded-lg bg-muted/50 p-3">
             <p className="text-xs text-muted-foreground">
               Total family support:{' '}
               <span className="font-medium">
@@ -205,8 +200,7 @@ export function Step4Sandwich({
               </span>{' '}
               / month
             </p>
-          </div>
-        )}
+          </div> : null}
 
         {!hasAnyFamilySupport && (
           <div className="rounded-lg bg-green-50 p-3 text-sm text-green-700">

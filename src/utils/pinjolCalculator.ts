@@ -104,12 +104,12 @@ export function calculateSnowballOrder(debts: {
   rate: number;
   minPayment: number;
 }[]): {
-  order: Array<{
+  order: {
     name: string;
     balance: number;
     rate: number;
     minPayment: number;
-  }>;
+  }[];
   totalInterest: number;
   totalMonths: number;
 } {
@@ -151,12 +151,12 @@ export function calculateAvalancheOrder(debts: {
   rate: number;
   minPayment: number;
 }[]): {
-  order: Array<{
+  order: {
     name: string;
     balance: number;
     rate: number;
     minPayment: number;
-  }>;
+  }[];
   totalInterest: number;
   totalMonths: number;
 } {

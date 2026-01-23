@@ -8,6 +8,23 @@ interface WizardRouteGuardProps {
   children: ReactNode;
 }
 
+function loadStateFromStorage() {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  try {
+    const stored = localStorage.getItem('money-decision-wizard-state');
+    if (stored) {
+      return JSON.parse(stored) as { income?: number | null; selectedRuleId?: string | null };
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
 export function WizardRouteGuard({ step, children }: WizardRouteGuardProps) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -21,21 +38,25 @@ export function WizardRouteGuard({ step, children }: WizardRouteGuardProps) {
       return;
     }
 
+    const storedState = loadStateFromStorage();
+    const income = storedState?.income ?? state.income;
+    const selectedRuleId = storedState?.selectedRuleId ?? state.selectedRuleId;
+
     switch (step) {
       case 2:
-        if (!state.income) {
+        if (!income || income <= 0) {
           void navigate('/wizard/income', { replace: true });
         }
         break;
       case 3:
-        if (!state.income) {
+        if (!income || income <= 0) {
           void navigate('/wizard/income', { replace: true });
         }
         break;
       case 4:
-        if (!state.income) {
+        if (!income || income <= 0) {
           void navigate('/wizard/income', { replace: true });
-        } else if (!state.selectedRuleId) {
+        } else if (!selectedRuleId) {
           void navigate('/wizard/rule', { replace: true });
         }
         break;

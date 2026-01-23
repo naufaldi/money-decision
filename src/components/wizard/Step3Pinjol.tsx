@@ -55,9 +55,37 @@ export function Step3Pinjol({
   };
 
   const handleInterestChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9.]/g, '');
+    let value = e.target.value.replace(/[^0-9.,]/g, '');
+    
+    const commaIndex = value.indexOf(',');
+    const dotIndex = value.indexOf('.');
+    
+    if (commaIndex !== -1 && dotIndex !== -1) {
+      if (commaIndex < dotIndex) {
+        value = value.replace(/\./g, '');
+      } else {
+        value = value.replace(/,/g, '');
+      }
+    }
+    
+    const normalizedValue = value.replace(',', '.');
+    
+    if (normalizedValue && normalizedValue.split('.').length > 2) {
+      const parts = normalizedValue.split('.');
+      const cleanedValue = parts[0] + '.' + parts.slice(1).join('');
+      const displayValue = commaIndex !== -1 && (dotIndex === -1 || commaIndex < dotIndex) 
+        ? cleanedValue.replace('.', ',') 
+        : cleanedValue;
+      setInterestDisplay(displayValue);
+      const numericValue = parseFloat(cleanedValue);
+      onPinjolDebtInterestChange(!isNaN(numericValue) ? numericValue : null);
+      return;
+    }
+    
     setInterestDisplay(value);
-    onPinjolDebtInterestChange(value ? parseFloat(value) : null);
+    
+    const numericValue = normalizedValue ? parseFloat(normalizedValue) : null;
+    onPinjolDebtInterestChange(numericValue && !isNaN(numericValue) ? numericValue : null);
   };
 
   const handlePaymentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,8 +151,7 @@ export function Step3Pinjol({
           </div>
         </div>
 
-        {hasPinjolDebt && (
-          <div className="space-y-4 rounded-lg border border-red-200 bg-red-50 p-4">
+        {hasPinjolDebt ? <div className="space-y-4 rounded-lg border border-red-200 bg-red-50 p-4">
             <div className="flex items-center gap-2 text-red-700">
               <AlertTriangle className="h-4 w-4" aria-hidden="true" />
               <span className="text-sm font-medium">Pinjol Debt Details</span>
@@ -156,25 +183,23 @@ export function Step3Pinjol({
                 <Input
                   id="pinjol-interest"
                   type="text"
-                  placeholder="e.g., 5"
+                  placeholder="e.g., 5 or 2,5"
                   value={interestDisplay}
                   onChange={handleInterestChange}
                   className="border-red-200 focus:border-red-400"
                   aria-describedby="pinjol-interest-hint"
                 />
                 <p id="pinjol-interest-hint" className="mt-1 text-xs text-red-600">
-                  Approximate monthly interest rate percentage
+                  Approximate monthly interest rate percentage (e.g., 2.5 or 2,5)
                 </p>
               </div>
 
-              {pinjolDebtAmount && pinjolDebtInterest && (
-                <div className="rounded-lg bg-red-100 p-3">
+              {pinjolDebtAmount && pinjolDebtInterest ? <div className="rounded-lg bg-red-100 p-3">
                   <p className="text-xs font-medium text-red-800">Monthly Interest Cost:</p>
                   <p className="text-sm font-semibold text-red-900">
                     {formatCurrency((pinjolDebtAmount * pinjolDebtInterest) / 100)}
                   </p>
-                </div>
-              )}
+                </div> : null}
 
               <div>
                 <label htmlFor="pinjol-payment" className="mb-1 block text-sm font-medium">
@@ -195,21 +220,18 @@ export function Step3Pinjol({
               </div>
             </div>
 
-            {forecast && formattedForecast && (
-              <PayoffForecastCard
+            {forecast && formattedForecast ? <PayoffForecastCard
                 forecast={forecast}
                 formattedForecast={formattedForecast}
                 monthlyInterest={forecast.monthlyInterest}
-              />
-            )}
+              /> : null}
 
             <div className="border-t border-red-200 pt-3">
               <p className="text-xs text-red-700">
                 <strong>Important:</strong> High-interest pinjol debt should be prioritized in your budget. We&apos;ll provide guidance on managing and reducing this debt.
               </p>
             </div>
-          </div>
-        )}
+          </div> : null}
 
         {!hasPinjolDebt && (
           <div className="rounded-lg bg-green-50 p-3 text-sm text-green-700">

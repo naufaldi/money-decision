@@ -3,7 +3,7 @@ import { Step4Results } from '../Step4Results';
 import { useWizardStep } from '@/hooks/useWizardState';
 
 export function ResultsPage() {
-  const { state } = useWizardStep(6);
+  const { state, clearState } = useWizardStep(6);
 
   return (
     <div role="main" aria-label="Money Decision Wizard - Step 6" className="wizard-container">
@@ -25,6 +25,7 @@ export function ResultsPage() {
           pinjolDebtInterest: state.pinjolDebtInterest,
           pinjolDebtPayment: state.pinjolDebtPayment,
         }}
+        clearState={clearState}
       />
     </div>
   );

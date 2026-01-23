@@ -182,10 +182,10 @@ export function Step2Expenses({ value, onChange, income }: Step2ExpensesProps) {
         <CardDescription className="text-center">
           <p>Enter all your expenses to get personalized recommendations</p>
           <details className="mt-2 text-xs text-muted-foreground">
-            <summary className="cursor-pointer hover:text-foreground transition-colors">
+            <summary className="cursor-pointer transition-colors hover:text-foreground">
               What's included in monthly spending?
             </summary>
-            <ul className="mt-2 space-y-1 text-left list-none">
+            <ul className="mt-2 list-none space-y-1 text-left">
               <li>• Housing (rent, utilities, maintenance)</li>
               <li>• Transportation (fuel, public transport)</li>
               <li>• Food (groceries, dining out)</li>

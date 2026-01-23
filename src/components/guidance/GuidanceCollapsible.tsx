@@ -66,18 +66,16 @@ export function GuidanceCollapsible({
       onOpenChange={handleOpenChange}
       className={`rounded-lg border border-muted bg-muted/20 ${className}`}
     >
-      <CollapsibleTrigger className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-muted/30 transition-colors rounded-t-lg">
+      <CollapsibleTrigger className="flex w-full items-center justify-between rounded-t-lg px-4 py-3 text-left transition-colors hover:bg-muted/30">
         <div className="flex items-center gap-2">
           <Lightbulb
             className={`h-4 w-4 ${iconColors[icon] || iconColors.info}`}
             aria-hidden="true"
           />
           <span className="text-sm font-medium">{title}</span>
-          {hasMatches && (
-            <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/10 px-1.5 text-xs font-medium text-primary">
+          {hasMatches ? <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/10 px-1.5 text-xs font-medium text-primary">
               {matchingNodes.length}
-            </span>
-          )}
+            </span> : null}
         </div>
         <ChevronDown
           className={`h-4 w-4 transition-transform duration-200 ${
