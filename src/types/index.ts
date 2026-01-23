@@ -92,4 +92,5 @@ export interface CalculatorResult {
   savingsBreakdown: SavingsBreakdown;
   investmentBreakdown: InvestmentBreakdown;
   pinjolMonthlyPayment?: number;
+  effectiveIncome: number;
 }

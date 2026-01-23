@@ -287,9 +287,9 @@ export function Step4Results({ data, clearState }: Step4ResultsProps) {
   }, [data]);
 
   const comparison = useMemo(() => {
-    if (!data.income || data.income <= 0) return null;
-    return compareAllocations(data.income, data.expenses, data.selectedRuleId);
-  }, [data]);
+    if (!results?.effectiveIncome || results.effectiveIncome <= 0) return null;
+    return compareAllocations(results.effectiveIncome, data.expenses, data.selectedRuleId);
+  }, [results?.effectiveIncome, data.expenses, data.selectedRuleId]);
 
   const cutNeeded = useMemo(() => {
     if (!data.income || data.income <= 0) return 0;
@@ -427,7 +427,26 @@ export function Step4Results({ data, clearState }: Step4ResultsProps) {
         recommendations={investmentBreakdown.recommendations}
       />
 
-      {!!showComparison && !!comparison && <AllocationComparison comparison={comparison} />}
+      {!!showComparison && !!comparison && results?.effectiveIncome && results.effectiveIncome > 0 && (
+        <AllocationComparison comparison={comparison} />
+      )}
+
+      {!!showComparison && !!data.expenses && results?.effectiveIncome !== undefined && results.effectiveIncome <= 0 && (
+        <div className="rounded-lg border-2 border-red-200 bg-red-50 p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-red-700" />
+            <div>
+              <p className="font-medium text-red-800">
+                Cannot Show Allocation Comparison
+              </p>
+              <p className="text-sm text-red-700 mt-1">
+                Your family support obligations and debt payments exceed your income.
+                Address the income deficit shown above before planning budget allocations.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

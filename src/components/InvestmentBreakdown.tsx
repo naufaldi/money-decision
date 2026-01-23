@@ -139,7 +139,7 @@ function RecommendationRow({
   totalAmount,
 }: RecommendationRowProps) {
   const amount = Math.round(totalAmount * recommendation.percentage);
-  const actualPercentage = (amount / totalAmount) * 100;
+  const actualPercentage = totalAmount > 0 ? (amount / totalAmount) * 100 : 0;
   const Icon = getIconForInvestment(recommendation.name);
 
   return (

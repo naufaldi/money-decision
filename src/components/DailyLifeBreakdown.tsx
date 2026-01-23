@@ -119,7 +119,7 @@ function SubcategoryRow({
   amount,
   totalAmount,
 }: SubcategoryRowProps) {
-  const actualPercentage = (amount / totalAmount) * 100;
+  const actualPercentage = totalAmount > 0 ? (amount / totalAmount) * 100 : 0;
   const Icon = iconMap[category.icon ?? 'home'] || Building;
 
   return (

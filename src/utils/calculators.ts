@@ -232,6 +232,7 @@ export function calculateResults(
     savingsBreakdown,
     investmentBreakdown,
     pinjolMonthlyPayment,
+    effectiveIncome,
   };
 }
 
